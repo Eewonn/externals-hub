@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,15 +31,30 @@ export default function TaskCard({ task, canManage, currentUserId, allUsers }: T
   const supabase = createClient()
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const isOverdue = isPast(new Date(task.deadline)) && task.status !== 'completed'
-  const daysUntilDeadline = differenceInDays(new Date(task.deadline), new Date())
+  // Memoize date calculations to avoid recalculating on every render
+  const { isOverdue, daysUntilDeadline, deadlineColor, formattedDeadline, formattedCompletedAt } = useMemo(() => {
+    const deadlineDate = new Date(task.deadline)
+    const now = new Date()
+    const _isOverdue = isPast(deadlineDate) && task.status !== 'completed'
+    const _daysUntilDeadline = differenceInDays(deadlineDate, now)
+    
+    let _deadlineColor = 'text-gray-600'
+    if (task.status === 'completed') {
+      _deadlineColor = 'text-gray-600'
+    } else if (_isOverdue) {
+      _deadlineColor = 'text-red-600 font-semibold'
+    } else if (_daysUntilDeadline <= 3) {
+      _deadlineColor = 'text-orange-600 font-semibold'
+    }
 
-  const getDeadlineColor = () => {
-    if (task.status === 'completed') return 'text-gray-600'
-    if (isOverdue) return 'text-red-600 font-semibold'
-    if (daysUntilDeadline <= 3) return 'text-orange-600 font-semibold'
-    return 'text-gray-600'
-  }
+    return {
+      isOverdue: _isOverdue,
+      daysUntilDeadline: _daysUntilDeadline,
+      deadlineColor: _deadlineColor,
+      formattedDeadline: format(deadlineDate, 'MMM dd, yyyy'),
+      formattedCompletedAt: task.completed_at ? format(new Date(task.completed_at), 'MMM dd, yyyy') : null
+    }
+  }, [task.deadline, task.status, task.completed_at])
 
   const handleStatusChange = async (newStatus: TaskStatus) => {
     try {
@@ -140,10 +155,10 @@ export default function TaskCard({ task, canManage, currentUserId, allUsers }: T
             </span>
           </div>
           
-          <div className={`flex items-center gap-1.5 text-xs ${getDeadlineColor()}`}>
+          <div className={`flex items-center gap-1.5 text-xs ${deadlineColor}`}>
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {format(new Date(task.deadline), 'MMM dd, yyyy')}
+              {formattedDeadline}
               {isOverdue && ' (Overdue)'}
               {!isOverdue && daysUntilDeadline <= 3 && daysUntilDeadline >= 0 && ` (${daysUntilDeadline}d left)`}
             </span>
@@ -163,9 +178,9 @@ export default function TaskCard({ task, canManage, currentUserId, allUsers }: T
             </div>
           )}
 
-          {task.status === 'completed' && task.completed_at && (
+          {task.status === 'completed' && formattedCompletedAt && (
             <div className="text-xs text-green-600 mt-2 pt-2 border-t">
-              Completed {format(new Date(task.completed_at), 'MMM dd, yyyy')}
+              Completed {formattedCompletedAt}
             </div>
           )}
         </div>

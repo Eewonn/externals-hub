@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TaskStatus } from '@/lib/supabase/types'
@@ -20,7 +20,8 @@ interface TaskBoardProps {
 }
 
 export default function TaskBoard({ tasksByStatus, canAssignTasks, currentUserId, allUsers }: TaskBoardProps) {
-  const columns = [
+  // Memoize column configuration
+  const columns = useMemo(() => [
     {
       id: 'pending' as TaskStatus,
       title: 'Pending',
@@ -53,7 +54,7 @@ export default function TaskBoard({ tasksByStatus, canAssignTasks, currentUserId
       color: 'bg-red-50 border-red-300',
       badgeColor: 'bg-red-500',
     },
-  ]
+  ], [tasksByStatus])
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

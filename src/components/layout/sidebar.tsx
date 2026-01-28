@@ -13,7 +13,8 @@ import {
   CheckSquare,
   LogOut,
   ChevronRight,
-  UserCog
+  UserCog,
+  Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useTransition } from 'react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -38,11 +40,19 @@ export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const [isPending, startTransition] = useTransition()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  const handleNavigation = (href: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    startTransition(() => {
+      router.push(href)
+    })
   }
 
   return (
@@ -63,6 +73,8 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={(e) => handleNavigation(item.href, e)}
+              prefetch={true}
               className={`
                 flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors
                 ${isActive 
@@ -80,6 +92,13 @@ export default function Sidebar() {
           )
         })}
       </nav>
+
+      {/* Loading Indicator */}
+      {isPending && (
+        <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50">
+          <div className="h-full bg-gray-900 animate-[loading_1s_ease-in-out_infinite]" style={{ width: '30%' }}></div>
+        </div>
+      )}
 
       {/* User Account */}
       <div className="p-4 border-t border-gray-200">
