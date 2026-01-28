@@ -1,22 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Users as UsersIcon, UserPlus, Shield } from 'lucide-react'
+import { UserPlus, Shield } from 'lucide-react'
 import Link from 'next/link'
-import { PERMISSIONS } from '@/lib/auth/permissions'
-import { UserRole } from '@/lib/supabase/types'
-import UserActionsMenu from '@/app/(app)/users/user-actions-menu'
 import { getCurrentUser, canManageUsers } from '@/lib/supabase/queries'
+import UsersList from './users-list'
 
 export default async function UsersPage() {
   const authUser = await getCurrentUser()
@@ -38,31 +27,6 @@ export default async function UsersPage() {
     .from('users')
     .select('id, full_name, email, role, created_at, updated_at')
     .order('created_at', { ascending: false })
-
-  const getRoleBadge = (role: UserRole) => {
-    switch (role) {
-      case 'vp_externals':
-        return <Badge className="bg-purple-100 text-purple-800 border-purple-200">VP Externals</Badge>
-      case 'director_partnerships':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Director - Partnerships</Badge>
-      case 'director_sponsorships':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Director - Sponsorships</Badge>
-      case 'junior_officer':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Junior Officer</Badge>
-      case 'adviser':
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Adviser</Badge>
-      default:
-        return <Badge variant="outline">{role}</Badge>
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
 
   return (
     <div className="space-y-6">
@@ -117,52 +81,7 @@ export default async function UsersPage() {
       </div>
 
       {/* Users Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>Manage user roles and access permissions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {users && users.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.full_name}</TableCell>
-                    <TableCell className="text-gray-600">{user.email}</TableCell>
-                    <TableCell>{getRoleBadge(user.role)}</TableCell>
-                    <TableCell className="text-gray-600">{formatDate(user.created_at)}</TableCell>
-                    <TableCell className="text-right">
-                      <UserActionsMenu user={user} currentUserId={user.id} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <UsersIcon className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No users found</h3>
-              <p className="text-gray-600 mb-4">Get started by adding your first user</p>
-              <Link href="/users/new">
-                <Button>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add User
-                </Button>
-              </Link>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <UsersList users={users || []} currentUserId={authUser.id} />
 
       {/* Info Card */}
       <Card className="bg-blue-50 border-blue-200">
