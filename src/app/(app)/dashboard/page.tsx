@@ -3,61 +3,49 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, FileText, Users, CheckSquare } from 'lucide-react'
+import { getCurrentUser, getCurrentUserProfile, getDashboardStats } from '@/lib/supabase/queries'
+
+// Revalidate every 60 seconds for dashboard stats
+export const revalidate = 60
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const user = await getCurrentUser()
   
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  
-  if (authError || !user) {
+  if (!user) {
     redirect('/login')
   }
 
-  // Fetch user profile with role
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  // Fetch dashboard statistics
-  const [
-    { count: eventsCount },
-    { count: endorsementsCount },
-    { count: partnersCount },
-    { count: tasksCount },
-  ] = await Promise.all([
-    supabase.from('events').select('*', { count: 'exact', head: true }),
-    supabase.from('endorsements').select('*', { count: 'exact', head: true }),
-    supabase.from('partners').select('*', { count: 'exact', head: true }),
-    supabase.from('tasks').select('*', { count: 'exact', head: true }),
+  // Fetch profile and stats in parallel
+  const [profile, stats] = await Promise.all([
+    getCurrentUserProfile(),
+    getDashboardStats()
   ])
 
-  const stats = [
+  const statsCards = [
     {
       title: 'Total Events',
-      value: eventsCount || 0,
+      value: stats.eventsCount,
       icon: Calendar,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
       title: 'Endorsements',
-      value: endorsementsCount || 0,
+      value: stats.endorsementsCount,
       icon: FileText,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
     {
       title: 'Partners',
-      value: partnersCount || 0,
+      value: stats.partnersCount,
       icon: Users,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
       title: 'Active Tasks',
-      value: tasksCount || 0,
+      value: stats.tasksCount,
       icon: CheckSquare,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -104,7 +92,7 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {statsCards.map((stat) => {
           const Icon = stat.icon
           return (
             <Card key={stat.title} className="hover:shadow-lg transition-shadow">

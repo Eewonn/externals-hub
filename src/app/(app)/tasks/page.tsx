@@ -7,51 +7,25 @@ import Link from 'next/link'
 import { TaskStatus } from '@/lib/supabase/types'
 import TaskBoard from './task-board'
 import CreateTaskDialog from './create-task-dialog'
+import { getCurrentUser, getCurrentUserProfile, canAssignTasks as checkCanAssignTasks, getAllUsers } from '@/lib/supabase/queries'
+
+// Revalidate every 30 seconds for tasks
+export const revalidate = 30
 
 export default async function TasksPage() {
-  const supabase = await createClient()
+  const user = await getCurrentUser()
   
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  
-  if (authError || !user) {
+  if (!user) {
     redirect('/login')
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  const canAssignTasks = profile?.role === 'vp_externals' || 
-                         profile?.role === 'director_partnerships' || 
-                         profile?.role === 'director_sponsorships'
-
-  // Fetch all users for assignment dropdown
-  const { data: allUsers } = await supabase
-    .from('users')
-    .select('id, full_name, role')
-    .order('full_name')
-
-  // Fetch tasks with user details
-  const query = supabase
-    .from('tasks')
-    .select(`
-      *,
-      assigned_to_user:users!tasks_assigned_to_fkey(id, full_name, email, role),
-      created_by_user:users!tasks_created_by_fkey(id, full_name),
-      event:events(id, title),
-      partner:partners(id, name)
-    `)
-    .order('deadline', { ascending: true })
-
-  // If not VP or Director, only show tasks assigned to them
-  if (!canAssignTasks) {
-    query.eq('assigned_to', user.id)
-  }
-
-  const { data: tasks } = await query
+  // Fetch data in parallel for better performance
+  const [profile, canAssignTasks, allUsers, tasks] = await Promise.all([
+    getCurrentUserProfile(),
+    checkCanAssignTasks(),
+    getAllUsers(),
+    fetchTasks(user.id, await checkCanAssignTasks())
+  ])
 
   // Group tasks by status
   const tasksByStatus = {
@@ -152,4 +126,36 @@ export default async function TasksPage() {
       )}
     </div>
   )
+}
+
+
+// Helper function to fetch tasks
+async function fetchTasks(userId: string, canAssign: boolean) {
+  const supabase = await createClient()
+  
+  const query = supabase
+    .from('tasks')
+    .select(`
+      id,
+      title,
+      description,
+      assigned_to,
+      event_id,
+      partner_id,
+      deadline,
+      status,
+      completed_at,
+      assigned_to_user:users!tasks_assigned_to_fkey(id, full_name),
+      event:events(id, title),
+      partner:partners(id, name)
+    `)
+    .order('deadline', { ascending: true })
+
+  // If not VP or Director, only show tasks assigned to them
+  if (!canAssign) {
+    query.eq('assigned_to', userId)
+  }
+
+  const { data } = await query
+  return data
 }

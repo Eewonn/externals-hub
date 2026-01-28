@@ -14,7 +14,8 @@ import {
   LogOut,
   ChevronRight,
   UserCog,
-  Loader2
+  Loader2,
+  Settings
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -120,6 +121,12 @@ export default function Sidebar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Account Settings</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>

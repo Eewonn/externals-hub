@@ -16,34 +16,27 @@ import Link from 'next/link'
 import { PERMISSIONS } from '@/lib/auth/permissions'
 import { UserRole } from '@/lib/supabase/types'
 import UserActionsMenu from '@/app/(app)/users/user-actions-menu'
+import { getCurrentUser, canManageUsers } from '@/lib/supabase/queries'
 
 export default async function UsersPage() {
-  const supabase = await createClient()
+  const authUser = await getCurrentUser()
   
-  const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-  
-  if (authError || !authUser) {
+  if (!authUser) {
     redirect('/login')
   }
 
-  // Get current user's profile with role
-  const { data: currentUserProfile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', authUser.id)
-    .single()
-
   // Check if user has permission to manage users
-  const canManageUsers = currentUserProfile?.role === 'vp_externals'
+  const hasManagePermission = await canManageUsers()
 
-  if (!canManageUsers) {
+  if (!hasManagePermission) {
     redirect('/dashboard')
   }
 
-  // Fetch all users
+  // Fetch all users with only needed columns
+  const supabase = await createClient()
   const { data: users } = await supabase
     .from('users')
-    .select('*')
+    .select('id, full_name, email, role, created_at')
     .order('created_at', { ascending: false })
 
   const getRoleBadge = (role: UserRole) => {
@@ -149,7 +142,7 @@ export default async function UsersPage() {
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     <TableCell className="text-gray-600">{formatDate(user.created_at)}</TableCell>
                     <TableCell className="text-right">
-                      <UserActionsMenu user={user} currentUserId={authUser.id} />
+                      <UserActionsMenu user={user} currentUserId={user.id} />
                     </TableCell>
                   </TableRow>
                 ))}
