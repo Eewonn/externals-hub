@@ -15,7 +15,7 @@ import { Users as UsersIcon, UserPlus, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { PERMISSIONS } from '@/lib/auth/permissions'
 import { UserRole } from '@/lib/supabase/types'
-import UserActionsMenu from './user-actions-menu'
+import UserActionsMenu from '@/app/(app)/users/user-actions-menu'
 
 export default async function UsersPage() {
   const supabase = await createClient()
