@@ -2,6 +2,30 @@
 
 An internal web application for managing the Externals Committee's operational workflow, including endorsement tracking, event management, partner relationships, and task accountability.
 
+## ✨ Features Implemented
+
+### ✅ Core Modules (COMPLETE)
+
+- **Events & Competitions** - Full CRUD operations with participant tracking
+- **Endorsements** - Google Docs integration with approval workflow
+- **Partners & Sponsors** - Contact management with status tracking
+- **Templates Hub** - Categorized access to Google Drive templates
+- **Tasks & Accountability** - Priority-based task tracking
+
+### 🔐 Authentication & Authorization
+
+- Role-based access control (5 roles: VP Externals, Junior Officer, Directors, Adviser)
+- Protected routes with middleware
+- Granular permissions per module
+
+### 📊 Dashboard
+
+- Statistics overview
+- Quick action cards
+- Role-based navigation
+
+---
+
 ## 🚀 Tech Stack
 
 - **Frontend**: Next.js 15 with TypeScript
