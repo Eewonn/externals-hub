@@ -15,6 +15,21 @@ export default async function AccountSettingsPage() {
 
   const profile = await getCurrentUserProfile()
 
+  // Get initials from full name (first name + middle name initial, or first + last)
+  const getInitials = (fullName: string) => {
+    const names = fullName.trim().split(' ').filter(n => n.length > 0)
+    if (names.length === 0) return 'U'
+    if (names.length === 1) return names[0].charAt(0).toUpperCase()
+    if (names.length === 2) {
+      // First name + Last name
+      return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase()
+    }
+    // First name + Middle name (for 3+ names)
+    return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase()
+  }
+
+  const initials = getInitials(profile?.full_name || '')
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'vp_externals':
@@ -47,6 +62,24 @@ export default async function AccountSettingsPage() {
           Manage your profile information and account settings
         </p>
       </div>
+
+      {/* Profile Card with Avatar */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center shadow-lg">
+              <span className="text-white text-2xl font-bold">{initials}</span>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{profile?.full_name}</h2>
+              <p className="text-gray-600">{profile?.email}</p>
+              <Badge className={`${getRoleBadgeColor(profile?.role || '')} border mt-2`}>
+                {formatRole(profile?.role || '')}
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Profile Information Card */}
       <Card>

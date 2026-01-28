@@ -24,7 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useTransition } from 'react'
+import { useTransition, useEffect, useState } from 'react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -37,11 +37,47 @@ const navigation = [
   { name: 'Users', href: '/users', icon: UserCog },
 ]
 
+function getInitials(fullName: string | undefined | null): string {
+  if (!fullName || fullName.trim().length === 0) {
+    return 'U'
+  }
+  
+  const names = fullName.trim().split(/\s+/)
+  
+  if (names.length === 1) {
+    return names[0].charAt(0).toUpperCase()
+  } else if (names.length === 2) {
+    return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase()
+  } else {
+    // 3+ names: first name + middle name initials
+    return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase()
+  }
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const [isPending, startTransition] = useTransition()
+  const [userName, setUserName] = useState('User')
+  const [userRole, setUserRole] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    async function loadUserData() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('full_name, role')
+          .eq('id', user.id)
+          .single()
+        
+        setUserName(profile?.full_name || user.email || 'User')
+        setUserRole(profile?.role)
+      }
+    }
+    loadUserData()
+  }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -110,12 +146,12 @@ export default function Sidebar() {
               className="w-full justify-start text-left font-normal hover:bg-gray-100"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">U</span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-sm font-medium">{getInitials(userName)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">Account</p>
-                  <p className="text-xs text-gray-500 truncate">Manage settings</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+                  <p className="text-xs text-gray-500 truncate">{userRole || 'Member'}</p>
                 </div>
               </div>
             </Button>
