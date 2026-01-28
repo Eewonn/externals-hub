@@ -62,7 +62,7 @@ export default async function EventsPage() {
         </div>
         {(profile?.role === 'vp_externals' || profile?.role === 'junior_officer') && (
           <Link href="/events/new">
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white">
               <Plus className="mr-2 h-4 w-4" />
               Create Event
             </Button>

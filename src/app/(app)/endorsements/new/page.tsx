@@ -239,7 +239,7 @@ export default function NewEndorsementPage() {
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
                 disabled={loading || events.length === 0}
               >
                 {loading ? 'Submitting...' : 'Submit for Review'}

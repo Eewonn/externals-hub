@@ -64,7 +64,7 @@ export default async function EndorsementsPage() {
         </div>
         {(profile?.role === 'vp_externals' || profile?.role === 'junior_officer') && (
           <Link href="/endorsements/new">
-            <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white">
               <Plus className="mr-2 h-4 w-4" />
               Submit Endorsement
             </Button>

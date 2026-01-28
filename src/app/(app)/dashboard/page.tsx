@@ -67,12 +67,12 @@ export default async function DashboardPage() {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'vp_externals':
-        return 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+        return 'bg-gray-900 text-white'
       case 'director_partnerships':
       case 'director_sponsorships':
-        return 'bg-gradient-to-r from-green-600 to-teal-600 text-white'
+        return 'bg-gray-700 text-white'
       case 'junior_officer':
-        return 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+        return 'bg-gray-600 text-white'
       default:
         return 'bg-gray-500 text-white'
     }

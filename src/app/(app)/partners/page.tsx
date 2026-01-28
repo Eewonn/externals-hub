@@ -69,7 +69,7 @@ export default async function PartnersPage() {
         </div>
         {(profile?.role === 'vp_externals' || profile?.role === 'junior_officer') && (
           <Link href="/partners/new">
-            <Button className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700">
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white">
               <Plus className="mr-2 h-4 w-4" />
               Add Partner
             </Button>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,13 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { X, Plus } from 'lucide-react'
 
-export default function EditEventPage() {
-  const params = useParams()
+export default function NewEventPage() {
   const router = useRouter()
   const supabase = createClient()
   
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   const [formData, setFormData] = useState({
@@ -27,68 +25,9 @@ export default function EditEventPage() {
     event_type: 'event' as 'event' | 'competition',
     school_associate: '',
     event_date: '',
-    status: 'upcoming' as 'upcoming' | 'ongoing' | 'completed' | 'cancelled',
   })
   
   const [participantNames, setParticipantNames] = useState<string[]>([''])
-  const [userRole, setUserRole] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetchEvent()
-  }, [params.id])
-
-  const fetchEvent = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-      // Fetch user role
-      const { data: profile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-      
-      setUserRole(profile?.role || null)
-
-      // Fetch event
-      const { data: event, error: fetchError } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', params.id)
-        .single()
-
-      if (fetchError) {
-        setError(fetchError.message)
-        setLoading(false)
-        return
-      }
-
-      setFormData({
-        title: event.title,
-        description: event.description,
-        event_type: event.event_type,
-        school_associate: event.school_associate,
-        event_date: event.event_date,
-        status: event.status,
-      })
-
-      setParticipantNames(
-        event.participant_names && event.participant_names.length > 0 
-          ? event.participant_names 
-          : ['']
-      )
-
-      setLoading(false)
-    } catch (err) {
-      setError('Failed to load event')
-      setLoading(false)
-    }
-  }
 
   const addParticipant = () => {
     setParticipantNames([...participantNames, ''])
@@ -107,48 +46,51 @@ export default function EditEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    setSaving(true)
+    setLoading(true)
 
     try {
-      // Filter out empty participant names
-      const validParticipants = participantNames.filter(name => name.trim() !== '')
-
-      const { error: updateError } = await supabase
-        .from('events')
-        .update({
-          ...formData,
-          participant_names: validParticipants,
-        })
-        .eq('id', params.id)
-
-      if (updateError) {
-        setError(updateError.message)
-        setSaving(false)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        setError('You must be logged in to create an event')
+        setLoading(false)
         return
       }
 
-      router.push(`/events/${params.id}`)
+      // Filter out empty participant names
+      const validParticipants = participantNames.filter(name => name.trim() !== '')
+
+      const { data, error: insertError } = await supabase
+        .from('events')
+        .insert({
+          ...formData,
+          participant_names: validParticipants,
+          created_by: user.id,
+          status: 'upcoming',
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        setError(insertError.message)
+        setLoading(false)
+        return
+      }
+
+      router.push(`/events/${data.id}`)
       router.refresh()
     } catch (err) {
       setError('An unexpected error occurred')
-      setSaving(false)
+      setLoading(false)
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-600">Loading event...</div>
-      </div>
-    )
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Edit Event</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Create New Event</h1>
         <p className="text-gray-600 mt-1">
-          Update event information
+          Add a new competition or event to the system
         </p>
       </div>
 
@@ -156,7 +98,7 @@ export default function EditEventPage() {
         <CardHeader>
           <CardTitle>Event Details</CardTitle>
           <CardDescription>
-            Modify the event information as needed
+            Fill in the information about the event or competition
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -174,8 +116,9 @@ export default function EditEventPage() {
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g., National Programming Competition 2026"
                 required
-                disabled={saving}
+                disabled={loading}
               />
             </div>
 
@@ -186,9 +129,10 @@ export default function EditEventPage() {
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Provide details about the event..."
                 rows={4}
                 required
-                disabled={saving}
+                disabled={loading}
               />
             </div>
 
@@ -200,7 +144,7 @@ export default function EditEventPage() {
                 onValueChange={(value: 'event' | 'competition') => 
                   setFormData({ ...formData, event_type: value })
                 }
-                disabled={saving}
+                disabled={loading}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -212,30 +156,6 @@ export default function EditEventPage() {
               </Select>
             </div>
 
-            {/* Status */}
-            {userRole === 'vp_externals' && (
-              <div className="space-y-2">
-                <Label htmlFor="status">Status *</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: any) => 
-                    setFormData({ ...formData, status: value })
-                  }
-                  disabled={saving}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="upcoming">Upcoming</SelectItem>
-                    <SelectItem value="ongoing">Ongoing</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             {/* School Associate */}
             <div className="space-y-2">
               <Label htmlFor="school_associate">School/Organization *</Label>
@@ -243,8 +163,9 @@ export default function EditEventPage() {
                 id="school_associate"
                 value={formData.school_associate}
                 onChange={(e) => setFormData({ ...formData, school_associate: e.target.value })}
+                placeholder="e.g., University of the Philippines"
                 required
-                disabled={saving}
+                disabled={loading}
               />
             </div>
 
@@ -257,7 +178,7 @@ export default function EditEventPage() {
                 value={formData.event_date}
                 onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
                 required
-                disabled={saving}
+                disabled={loading}
               />
             </div>
 
@@ -270,7 +191,7 @@ export default function EditEventPage() {
                   variant="outline"
                   size="sm"
                   onClick={addParticipant}
-                  disabled={saving}
+                  disabled={loading}
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Participant
@@ -283,7 +204,7 @@ export default function EditEventPage() {
                       value={name}
                       onChange={(e) => updateParticipant(index, e.target.value)}
                       placeholder={`Participant ${index + 1} name`}
-                      disabled={saving}
+                      disabled={loading}
                     />
                     {participantNames.length > 1 && (
                       <Button
@@ -291,7 +212,7 @@ export default function EditEventPage() {
                         variant="outline"
                         size="icon"
                         onClick={() => removeParticipant(index)}
-                        disabled={saving}
+                        disabled={loading}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -299,22 +220,25 @@ export default function EditEventPage() {
                   </div>
                 ))}
               </div>
+              <p className="text-sm text-gray-600">
+                Add the names of participants. Leave blank if not yet determined.
+              </p>
             </div>
 
             {/* Actions */}
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                disabled={saving}
+                className="bg-gray-900 hover:bg-gray-800 text-white"
+                disabled={loading}
               >
-                {saving ? 'Saving...' : 'Save Changes'}
+                {loading ? 'Creating...' : 'Create Event'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                disabled={saving}
+                disabled={loading}
               >
                 Cancel
               </Button>

@@ -199,7 +199,7 @@ export default function NewPartnerPage() {
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
                 disabled={loading}
               >
                 {loading ? 'Adding...' : 'Add Partner'}
