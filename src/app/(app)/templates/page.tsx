@@ -3,7 +3,10 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { FileText, ExternalLink, Folder } from 'lucide-react'
+import { FileText, ExternalLink, Folder, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { PERMISSIONS } from '@/lib/auth/permissions'
+import TemplateActionsMenu from './template-actions-menu'
 
 export default async function TemplatesPage() {
   const supabase = await createClient()
@@ -13,6 +16,15 @@ export default async function TemplatesPage() {
   if (authError || !user) {
     redirect('/login')
   }
+
+  // Get current user's profile with role
+  const { data: currentUserProfile } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
+  const canManageTemplates = currentUserProfile && PERMISSIONS.canManageTemplates(currentUserProfile.role)
 
   // Fetch all templates
   const { data: templates } = await supabase
@@ -71,11 +83,21 @@ export default async function TemplatesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Templates & Resources</h1>
-        <p className="text-gray-600 mt-1">
-          Access all templates and resources for committee work
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Templates & Resources</h1>
+          <p className="text-gray-600 mt-1">
+            Access all templates and resources for committee work
+          </p>
+        </div>
+        {canManageTemplates && (
+          <Link href="/templates/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Template
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Templates by Category */}
@@ -103,10 +125,14 @@ export default async function TemplatesPage() {
                 {categoryTemplates.map((template: any) => (
                   <Card key={template.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <CardTitle className="text-lg flex items-start justify-between">
-                        <span className="flex-1">{template.name}</span>
-                        <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0 ml-2" />
-                      </CardTitle>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg flex-1">
+                          {template.title}
+                        </CardTitle>
+                        {canManageTemplates && (
+                          <TemplateActionsMenu template={template} />
+                        )}
+                      </div>
                       {template.description && (
                         <CardDescription className="line-clamp-2">
                           {template.description}
@@ -115,7 +141,7 @@ export default async function TemplatesPage() {
                     </CardHeader>
                     <CardContent>
                       <a
-                        href={template.link_url}
+                        href={template.external_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block"

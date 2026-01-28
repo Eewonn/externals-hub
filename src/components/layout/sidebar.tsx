@@ -12,7 +12,8 @@ import {
   FolderOpen, 
   CheckSquare,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  UserCog
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'Communications', href: '/communications', icon: Mail },
   { name: 'Templates', href: '/templates', icon: FolderOpen },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Users', href: '/users', icon: UserCog },
 ]
 
 export default function Sidebar() {
