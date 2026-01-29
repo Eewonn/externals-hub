@@ -150,46 +150,44 @@ export default function ScheduleCalendar({ schedules, officers, canViewAll }: Sc
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Schedule Calendar</span>
-          <div className="flex gap-3">
-            <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Academic Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
-                {academicYears.map(year => (
-                  <SelectItem key={year} value={year}>{year}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Semester" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Semesters</SelectItem>
-                {semesters.map(sem => (
-                  <SelectItem key={sem} value={sem}>{sem}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedOfficer} onValueChange={setSelectedOfficer}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select Officer" />
-              </SelectTrigger>
-              <SelectContent>
-                {canViewAll && <SelectItem value="all">All Officers</SelectItem>}
-                {officers.map(officer => (
-                  <SelectItem key={officer.id} value={officer.id}>
-                    {officer.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardTitle>
+        <CardTitle>Schedule Calendar</CardTitle>
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Academic Year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Years</SelectItem>
+              {academicYears.map(year => (
+                <SelectItem key={year} value={year}>{year}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Semester" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Semesters</SelectItem>
+              {semesters.map(sem => (
+                <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedOfficer} onValueChange={setSelectedOfficer}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Select Officer" />
+            </SelectTrigger>
+            <SelectContent>
+              {canViewAll && <SelectItem value="all">All Officers</SelectItem>}
+              {officers.map(officer => (
+                <SelectItem key={officer.id} value={officer.id}>
+                  {officer.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         {filteredSchedules.length === 0 ? (

@@ -39,18 +39,18 @@ export default async function EventsPage() {
   const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Events & Competitions</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Events & Competitions</h1>
           <p className="text-gray-600 mt-1">
             Manage all events and competitions
           </p>
         </div>
         {canCreate && (
-          <Link href="/events/new">
-            <Button className="bg-gray-900 hover:bg-gray-800 text-white">
+          <Link href="/events/new" className="w-full sm:w-auto">
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Create Event
             </Button>

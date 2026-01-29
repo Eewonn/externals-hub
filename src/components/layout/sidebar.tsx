@@ -16,7 +16,9 @@ import {
   UserCog,
   Loader2,
   Settings,
-  Clock
+  Clock,
+  Menu,
+  X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useTransition } from 'react'
+import { useTransition, useState } from 'react'
 import { UserRole } from '@/lib/supabase/types'
 
 const navigation = [
@@ -67,6 +69,7 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
   const router = useRouter()
   const supabase = createClient()
   const [isPending, startTransition] = useTransition()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -76,13 +79,37 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
 
   const handleNavigation = (href: string, e: React.MouseEvent) => {
     e.preventDefault()
+    setIsMobileMenuOpen(false)
     startTransition(() => {
       router.push(href)
     })
   }
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg border border-gray-200"
+      >
+        {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-40
+        w-64 bg-white border-r border-gray-200 flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
       {/* Logo/Brand */}
       <div className="p-6 border-b border-gray-200">
         <h1 className="text-xl font-bold text-gray-900">Externals Hub</h1>
@@ -162,5 +189,6 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
         </DropdownMenu>
       </div>
     </div>
+    </>
   )
 }

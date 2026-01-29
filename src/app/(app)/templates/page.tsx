@@ -81,18 +81,18 @@ export default async function TemplatesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Templates & Resources</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Templates & Resources</h1>
           <p className="text-gray-600 mt-1">
             Access all templates and resources for committee work
           </p>
         </div>
         {canManageTemplates && (
-          <Link href="/templates/new">
-            <Button>
+          <Link href="/templates/new" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Add Template
             </Button>
@@ -121,7 +121,7 @@ export default async function TemplatesPage() {
                 <div className="h-px flex-1 bg-gray-200" />
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {categoryTemplates.map((template: any) => (
                   <Card key={template.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>

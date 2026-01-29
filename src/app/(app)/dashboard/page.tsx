@@ -110,24 +110,24 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Welcome back, {profile?.full_name || 'User'}!
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Here's an overview of the Externals Committee activities
           </p>
         </div>
-        <Badge className={`${getRoleBadgeColor(profile?.role || '')} px-4 py-2 text-sm font-semibold`}>
+        <Badge className={`${getRoleBadgeColor(profile?.role || '')} px-4 py-2 text-sm font-semibold w-fit`}>
           {formatRole(profile?.role || '')}
         </Badge>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
         {statsCards.map((stat) => {
           const Icon = stat.icon
           return (

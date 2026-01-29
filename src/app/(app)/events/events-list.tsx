@@ -183,18 +183,18 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
       {/* Search and Filter Controls */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
             <CardTitle>Search & Filter</CardTitle>
             <Button 
               onClick={exportToCSV} 
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto"
             >
               <Download className="h-4 w-4" />
               Export to CSV
             </Button>
           </div>
-          <div className="flex gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -205,7 +205,7 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
               />
             </div>
             <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <Calendar className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Sort by Date" />
               </SelectTrigger>
@@ -215,7 +215,7 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -228,7 +228,7 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
               </SelectContent>
             </Select>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Type" />
               </SelectTrigger>

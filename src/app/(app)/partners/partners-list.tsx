@@ -96,7 +96,7 @@ export default function PartnersList({ partners, canCreate }: { partners: Partne
       <Card>
         <CardHeader>
           <CardTitle>Search & Filter</CardTitle>
-          <div className="flex gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -107,7 +107,7 @@ export default function PartnersList({ partners, canCreate }: { partners: Partne
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -121,7 +121,7 @@ export default function PartnersList({ partners, canCreate }: { partners: Partne
               </SelectContent>
             </Select>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
@@ -140,7 +140,7 @@ export default function PartnersList({ partners, canCreate }: { partners: Partne
 
       {/* Partners Grid */}
       {filteredPartners.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filteredPartners.map((partner) => (
             <Link key={partner.id} href={`/partners/${partner.id}`}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">

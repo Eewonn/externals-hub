@@ -29,17 +29,17 @@ export default async function UsersPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Manage user roles and permissions
           </p>
         </div>
         <Link href="/users/new">
-          <Button>
+          <Button className="w-full sm:w-auto">
             <UserPlus className="mr-2 h-4 w-4" />
             Add User
           </Button>
@@ -47,7 +47,7 @@ export default async function UsersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Users</CardDescription>

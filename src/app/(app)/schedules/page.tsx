@@ -64,11 +64,11 @@ export default async function SchedulesPage() {
   const semesters = [...new Set(schedules?.map(s => s.semester) || [])]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Officer Schedules</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Officer Schedules</h1>
           <p className="text-gray-600 mt-1">
             View and manage officer availability
           </p>
@@ -77,7 +77,7 @@ export default async function SchedulesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Schedules</CardDescription>
