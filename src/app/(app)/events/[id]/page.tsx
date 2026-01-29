@@ -12,6 +12,13 @@ import { Calendar, Users, Building2, Edit, Trash2, FileText } from 'lucide-react
 import { format } from 'date-fns'
 import Link from 'next/link'
 
+interface Participant {
+  id: string
+  student_name: string
+  year_level: string
+  course: string
+}
+
 interface Event {
   id: string
   title: string
@@ -25,6 +32,14 @@ interface Event {
   created_by: any
   created_at: string
   updated_at: string
+  // Competition fields
+  category?: string
+  nature?: string
+  organizer?: string
+  rank_award?: string
+  group_name?: string
+  competition_number?: number
+  participants?: Participant[]
 }
 
 export default function EventDetailPage() {
@@ -60,10 +75,19 @@ export default function EventDetailPage() {
       
       setUserRole(profile?.role || null)
 
-      // Fetch event details
+      // Fetch event details with participants
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select('*, created_by(full_name, email)')
+        .select(`
+          *,
+          created_by:users(full_name, email),
+          participants:competition_participants(
+            id,
+            student_name,
+            year_level,
+            course
+          )
+        `)
         .eq('id', params.id)
         .single()
 
@@ -223,6 +247,58 @@ export default function EventDetailPage() {
                 <div className="text-gray-700">{event.school_associate}</div>
               </div>
             </div>
+
+            {event.organizer && (
+              <div className="flex items-start gap-3">
+                <Building2 className="h-5 w-5 text-gray-600 mt-0.5" />
+                <div>
+                  <div className="font-semibold text-gray-900">Organizer</div>
+                  <div className="text-gray-700">{event.organizer}</div>
+                </div>
+              </div>
+            )}
+
+            {(event.category || event.nature) && (
+              <div className="flex items-start gap-6">
+                {event.category && (
+                  <div>
+                    <div className="font-semibold text-gray-900 mb-1">Category</div>
+                    <Badge variant="outline">
+                      {event.category.replace('_', ' - ').replace('local', 'Local').replace('regional', 'Regional').replace('national', 'National')}
+                    </Badge>
+                  </div>
+                )}
+                {event.nature && (
+                  <div>
+                    <div className="font-semibold text-gray-900 mb-1">Nature</div>
+                    <Badge variant="outline">
+                      {event.nature.replace('_', '-').replace('academic', 'Academic').replace('non', 'Non')}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {event.group_name && (
+              <div className="flex items-start gap-3">
+                <Users className="h-5 w-5 text-gray-600 mt-0.5" />
+                <div>
+                  <div className="font-semibold text-gray-900">Group/Team</div>
+                  <div className="text-gray-700">{event.group_name}</div>
+                </div>
+              </div>
+            )}
+
+            {event.rank_award && event.rank_award !== 'None' && (
+              <div className="flex items-start gap-3">
+                <div>
+                  <div className="font-semibold text-gray-900">Award/Rank</div>
+                  <div className="text-gray-900 font-semibold flex items-center gap-2">
+                    🏆 {event.rank_award}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <Separator />
@@ -231,15 +307,15 @@ export default function EventDetailPage() {
             <div className="flex items-center gap-2 mb-3">
               <Users className="h-5 w-5 text-gray-600" />
               <h3 className="font-semibold text-gray-900">
-                Participants ({event.participant_count || 0})
+                Participants ({event.participants?.length || 0})
               </h3>
             </div>
-            {event.participant_names && event.participant_names.length > 0 ? (
+            {event.participants && event.participants.length > 0 ? (
               <ul className="grid gap-2 md:grid-cols-2">
-                {event.participant_names.map((name, index) => (
-                  <li key={index} className="flex items-center gap-2 text-gray-700">
+                {event.participants.map((participant) => (
+                  <li key={participant.id} className="flex items-center gap-2 text-gray-700">
                     <span className="text-gray-400">•</span>
-                    {name}
+                    {participant.student_name} ({participant.year_level} {participant.course})
                   </li>
                 ))}
               </ul>

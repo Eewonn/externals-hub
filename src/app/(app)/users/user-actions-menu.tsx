@@ -77,13 +77,17 @@ export default function UserActionsMenu({ user, currentUserId }: UserActionsMenu
         .delete()
         .eq('id', user.id)
 
-      if (error) throw error
+      if (error) {
+        console.error('Error deleting user:', error)
+        alert(`Failed to delete user: ${error.message}`)
+        return
+      }
 
       setIsDeleteDialogOpen(false)
       router.refresh()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting user:', error)
-      alert('Failed to delete user')
+      alert(`Failed to delete user: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
