@@ -15,7 +15,8 @@ import {
   ChevronRight,
   UserCog,
   Loader2,
-  Settings
+  Settings,
+  Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,6 +35,7 @@ const navigation = [
   { name: 'Communications', href: '/communications', icon: Mail },
   { name: 'Templates', href: '/templates', icon: FolderOpen },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Schedules', href: '/schedules', icon: Clock },
   { name: 'Users', href: '/users', icon: UserCog },
 ]
 

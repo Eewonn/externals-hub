@@ -323,6 +323,73 @@ export interface Database {
                     updated_at?: string
                 }
             }
+            officer_schedules: {
+                Row: {
+                    id: string
+                    user_id: string
+                    academic_year: string
+                    semester: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    academic_year: string
+                    semester: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    academic_year?: string
+                    semester?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
+            schedule_entries: {
+                Row: {
+                    id: string
+                    schedule_id: string
+                    course_code: string
+                    course_title: string
+                    section: string
+                    units: number
+                    days: string[]
+                    time_ranges: string[]
+                    rooms: string[]
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    schedule_id: string
+                    course_code: string
+                    course_title: string
+                    section: string
+                    units: number
+                    days: string[]
+                    time_ranges: string[]
+                    rooms: string[]
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    schedule_id?: string
+                    course_code?: string
+                    course_title?: string
+                    section?: string
+                    units?: number
+                    days?: string[]
+                    time_ranges?: string[]
+                    rooms?: string[]
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
         }
     }
 }
