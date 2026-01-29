@@ -45,13 +45,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <Card className="w-full max-w-md shadow-lg border-gray-200">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold text-center text-gray-900">
             Externals Hub
           </CardTitle>
-          <CardDescription className="text-center text-base">
+          <CardDescription className="text-center text-base text-gray-600">
             Sign in to access the Externals Committee management system
           </CardDescription>
         </CardHeader>
@@ -93,7 +93,7 @@ export default function LoginPage() {
             
             <Button 
               type="submit" 
-              className="w-full h-11 text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="w-full h-11 text-base font-semibold bg-gray-900 hover:bg-gray-800 text-white"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign In'}

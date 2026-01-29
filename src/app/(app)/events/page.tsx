@@ -21,10 +21,19 @@ export default async function EventsPage() {
     .eq('id', user.id)
     .single()
 
-  // Fetch all events
+  // Fetch all events with participants
   const { data: events, error } = await supabase
     .from('events')
-    .select('*, created_by(full_name)')
+    .select(`
+      *,
+      created_by:users(full_name),
+      participants:competition_participants(
+        id,
+        student_name,
+        year_level,
+        course
+      )
+    `)
     .order('event_date', { ascending: false })
 
   const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer'

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Calendar, Users, Clock } from 'lucide-react'
 import { getCurrentUser } from '@/lib/supabase/queries'
+import { PERMISSIONS } from '@/lib/auth/permissions'
 import ScheduleCalendar from './schedule-calendar'
 import ScheduleInputDialog from './schedule-input-dialog'
 
@@ -16,21 +17,47 @@ export default async function SchedulesPage() {
 
   const supabase = await createClient()
   
-  // Fetch all officer schedules with user details and entries
-  const { data: schedules } = await supabase
+  // Get user profile with role
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', authUser.id)
+    .single()
+  
+  if (!userProfile?.role) {
+    redirect('/login')
+  }
+  
+  // Check if user can view all schedules
+  const canViewAll = PERMISSIONS.canViewAllSchedules(userProfile.role)
+  
+  // Fetch officer schedules with user details and entries
+  // Filter to only show current user's schedule if they don't have permission to view all
+  let schedulesQuery = supabase
     .from('officer_schedules')
     .select(`
       *,
       user:users(id, full_name, email, role),
       entries:schedule_entries(*)
     `)
-    .order('created_at', { ascending: false })
+  
+  if (!canViewAll) {
+    schedulesQuery = schedulesQuery.eq('user_id', authUser.id)
+  }
+  
+  const { data: schedules } = await schedulesQuery.order('created_at', { ascending: false })
 
-  // Fetch all users for the dropdown
-  const { data: officers } = await supabase
+  // Fetch users for the dropdown
+  // Only show current user if they don't have permission to view all
+  let officersQuery = supabase
     .from('users')
     .select('id, full_name, email, role')
-    .order('full_name')
+  
+  if (!canViewAll) {
+    officersQuery = officersQuery.eq('id', authUser.id)
+  }
+  
+  const { data: officers } = await officersQuery.order('full_name')
 
   // Get unique academic years and semesters
   const academicYears = [...new Set(schedules?.map(s => s.academic_year) || [])]
@@ -81,7 +108,11 @@ export default async function SchedulesPage() {
       </div>
 
       {/* Calendar View */}
-      <ScheduleCalendar schedules={schedules || []} officers={officers || []} />
+      <ScheduleCalendar 
+        schedules={schedules || []} 
+        officers={officers || []} 
+        canViewAll={canViewAll}
+      />
 
       {/* Info Card */}
       <Card className="bg-blue-50 border-blue-200">

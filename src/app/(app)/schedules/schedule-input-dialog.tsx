@@ -176,7 +176,7 @@ export default function ScheduleInputDialog({ officers }: ScheduleInputDialogPro
                 <SelectContent>
                   <SelectItem value="First Semester">First Semester</SelectItem>
                   <SelectItem value="Second Semester">Second Semester</SelectItem>
-                  <SelectItem value="Summer">Summer</SelectItem>
+                  <SelectItem value="Third Semester">Third Semester</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -25,18 +25,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useTransition, useEffect, useState } from 'react'
+import { useTransition } from 'react'
+import { UserRole } from '@/lib/supabase/types'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Events', href: '/events', icon: Calendar },
-  { name: 'Endorsements', href: '/endorsements', icon: FileText },
-  { name: 'Partners', href: '/partners', icon: Users },
-  { name: 'Communications', href: '/communications', icon: Mail },
-  { name: 'Templates', href: '/templates', icon: FolderOpen },
-  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-  { name: 'Schedules', href: '/schedules', icon: Clock },
-  { name: 'Users', href: '/users', icon: UserCog },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Events', href: '/events', icon: Calendar, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Endorsements', href: '/endorsements', icon: FileText, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Partners', href: '/partners', icon: Users, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Communications', href: '/communications', icon: Mail, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Templates', href: '/templates', icon: FolderOpen, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Schedules', href: '/schedules', icon: Clock, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { name: 'Users', href: '/users', icon: UserCog, roles: ['vp_externals', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
 ]
 
 function getInitials(fullName: string | undefined | null): string {
@@ -56,30 +57,16 @@ function getInitials(fullName: string | undefined | null): string {
   }
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  userName: string
+  userRole?: string
+}
+
+export default function Sidebar({ userName, userRole }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const [isPending, startTransition] = useTransition()
-  const [userName, setUserName] = useState('User')
-  const [userRole, setUserRole] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    async function loadUserData() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('full_name, role')
-          .eq('id', user.id)
-          .single()
-        
-        setUserName(profile?.full_name || user.email || 'User')
-        setUserRole(profile?.role)
-      }
-    }
-    loadUserData()
-  }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -104,7 +91,9 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
-        {navigation.map((item) => {
+        {navigation
+          .filter(item => !userRole || item.roles.includes(userRole as UserRole))
+          .map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
           const Icon = item.icon
           

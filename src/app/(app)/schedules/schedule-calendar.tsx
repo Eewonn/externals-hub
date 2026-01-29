@@ -37,6 +37,7 @@ interface OfficerSchedule {
 interface ScheduleCalendarProps {
   schedules: OfficerSchedule[]
   officers: Officer[]
+  canViewAll: boolean
 }
 
 const DAYS = [
@@ -53,7 +54,7 @@ const TIME_SLOTS = [
   '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
 ]
 
-export default function ScheduleCalendar({ schedules, officers }: ScheduleCalendarProps) {
+export default function ScheduleCalendar({ schedules, officers, canViewAll }: ScheduleCalendarProps) {
   const [selectedOfficer, setSelectedOfficer] = useState<string>('all')
   const [selectedSemester, setSelectedSemester] = useState<string>('all')
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('all')
@@ -113,6 +114,9 @@ export default function ScheduleCalendar({ schedules, officers }: ScheduleCalend
 
     // Populate calendar with schedule entries
     filteredSchedules.forEach(schedule => {
+      // Skip if user data is missing
+      if (!schedule.user) return
+      
       // Assign color to officer if not already assigned
       if (!officerColors[schedule.user_id]) {
         officerColors[schedule.user_id] = colors[colorIndex % colors.length]
@@ -176,7 +180,7 @@ export default function ScheduleCalendar({ schedules, officers }: ScheduleCalend
                 <SelectValue placeholder="Select Officer" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Officers</SelectItem>
+                {canViewAll && <SelectItem value="all">All Officers</SelectItem>}
                 {officers.map(officer => (
                   <SelectItem key={officer.id} value={officer.id}>
                     {officer.full_name}
@@ -250,6 +254,9 @@ export default function ScheduleCalendar({ schedules, officers }: ScheduleCalend
             </div>
             <div className="flex flex-wrap gap-2">
               {filteredSchedules.map(schedule => {
+                // Skip schedules without user data
+                if (!schedule.user) return null
+                
                 const colorIndex = filteredSchedules.indexOf(schedule) % 8
                 const colors = [
                   'bg-blue-100 text-blue-800 border-blue-300',

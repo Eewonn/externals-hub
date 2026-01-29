@@ -49,6 +49,10 @@ export const PERMISSIONS = {
     canManageTemplates: (role: UserRole) =>
         role === 'vp_externals',
 
+    // Schedule permissions
+    canViewAllSchedules: (role: UserRole) =>
+        ['vp_externals', 'director_partnerships', 'director_sponsorships'].includes(role),
+
     canViewTemplates: (role: UserRole) =>
         true, // All authenticated users can view templates
 

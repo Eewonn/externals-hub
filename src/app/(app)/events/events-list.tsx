@@ -6,9 +6,16 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar, Plus, Users, Search, Filter } from 'lucide-react'
+import { Calendar, Plus, Users, Search, Filter, Trophy, Building2, Award } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
+
+type Participant = {
+  id: string
+  student_name: string
+  year_level: string
+  course: string
+}
 
 type Event = {
   id: string
@@ -20,12 +27,39 @@ type Event = {
   school_associate: string
   participant_count: number | null
   created_by: { full_name: string } | null
+  // Competition-specific fields
+  category?: string | null
+  nature?: string | null
+  organizer?: string | null
+  rank_award?: string | null
+  group_name?: string | null
+  competition_number?: number | null
+  participants?: Participant[]
 }
 
 export default function EventsList({ events, canCreate }: { events: Event[]; canCreate: boolean }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
+
+  const getCategoryBadge = (category: string | null | undefined) => {
+    if (!category) return null
+    const labels = {
+      local_regional: 'Local - Regional',
+      local_national: 'Local - National',
+      international: 'International'
+    }
+    return labels[category as keyof typeof labels] || category
+  }
+
+  const getNatureBadge = (nature: string | null | undefined) => {
+    if (!nature) return null
+    const labels = {
+      academic: 'Academic',
+      non_academic: 'Non-Academic'
+    }
+    return labels[nature as keyof typeof labels] || nature
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -119,7 +153,7 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="competition">Competition</SelectItem>
-                <SelectItem value="webinar">Webinar</SelectItem>
+                <SelectItem value="event">Event</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -136,31 +170,79 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
             <Link key={event.id} href={`/events/${event.id}`}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                 <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <Badge className={`${getTypeColor(event.event_type)} border`}>
-                      {event.event_type}
-                    </Badge>
+                  <div className="flex items-start justify-between mb-2 gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge className={`${getTypeColor(event.event_type)} border`}>
+                        {event.event_type}
+                      </Badge>
+                      {event.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {getCategoryBadge(event.category)}
+                        </Badge>
+                      )}
+                      {event.nature && (
+                        <Badge variant="outline" className="text-xs">
+                          {getNatureBadge(event.nature)}
+                        </Badge>
+                      )}
+                    </div>
                     <Badge className={`${getStatusColor(event.status)} border`}>
                       {event.status}
                     </Badge>
                   </div>
+                  {event.competition_number && (
+                    <div className="text-xs text-gray-500 mb-1">
+                      Competition #{event.competition_number}
+                    </div>
+                  )}
                   <CardTitle className="text-xl">{event.title}</CardTitle>
+                  {event.group_name && (
+                    <div className="text-sm font-medium text-gray-700 mt-1">
+                      Team: {event.group_name}
+                    </div>
+                  )}
                   <CardDescription className="line-clamp-2">
                     {event.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {event.organizer && (
+                    <div className="flex items-start text-sm text-gray-600">
+                      <Building2 className="mr-2 h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <span className="line-clamp-2">{event.organizer}</span>
+                    </div>
+                  )}
+                  {event.rank_award && event.rank_award !== 'None' && (
+                    <div className="flex items-center text-sm text-gray-900 font-semibold">
+                      <Award className="mr-2 h-4 w-4 text-yellow-600" />
+                      {event.rank_award}
+                    </div>
+                  )}
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="mr-2 h-4 w-4" />
                     {format(new Date(event.event_date), 'MMM dd, yyyy')}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Users className="mr-2 h-4 w-4" />
-                    {event.participant_count || 0} participant{event.participant_count !== 1 ? 's' : ''}
+                    {event.participants?.length || event.participant_count || 0} participant{(event.participants?.length || event.participant_count) !== 1 ? 's' : ''}
                   </div>
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">School:</span> {event.school_associate}
-                  </div>
+                  {event.participants && event.participants.length > 0 && (
+                    <div className="text-xs text-gray-600 pt-2 border-t">
+                      <div className="font-medium mb-1">Participants:</div>
+                      <div className="space-y-1 max-h-20 overflow-y-auto">
+                        {event.participants.slice(0, 3).map((p) => (
+                          <div key={p.id} className="text-xs">
+                            {p.student_name} ({p.year_level} {p.course})
+                          </div>
+                        ))}
+                        {event.participants.length > 3 && (
+                          <div className="text-xs text-gray-500 italic">
+                            +{event.participants.length - 3} more...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {event.created_by && (
                     <div className="text-xs text-gray-500 pt-2 border-t">
                       Created by {event.created_by.full_name}

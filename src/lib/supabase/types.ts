@@ -17,6 +17,10 @@ export type EventType = 'competition' | 'event'
 
 export type EventStatus = 'upcoming' | 'ongoing' | 'completed' | 'cancelled'
 
+export type CompetitionCategory = 'local_regional' | 'local_national' | 'international'
+
+export type CompetitionNature = 'academic' | 'non_academic'
+
 export type EndorsementStatus =
     | 'drafted'
     | 'vpe_reviewed'
