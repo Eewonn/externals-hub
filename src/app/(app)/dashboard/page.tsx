@@ -2,8 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, FileText, Users, CheckSquare } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Calendar, FileText, Users, CheckSquare, Clock, AlertCircle } from 'lucide-react'
 import { getCurrentUser, getCurrentUserProfile, getDashboardStats } from '@/lib/supabase/queries'
+import Link from 'next/link'
+import { format } from 'date-fns'
 
 // Revalidate every 60 seconds for dashboard stats
 export const revalidate = 60
@@ -15,10 +18,24 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Fetch profile and stats in parallel
-  const [profile, stats] = await Promise.all([
+  const supabase = await createClient()
+
+  // Fetch profile, stats, and tasks in parallel
+  const [profile, stats, { data: recentTasks }, { data: upcomingTasks }] = await Promise.all([
     getCurrentUserProfile(),
-    getDashboardStats()
+    getDashboardStats(),
+    supabase
+      .from('tasks')
+      .select('id, title, status, deadline, assigned_to:users!tasks_assigned_to_fkey(full_name), event:events(title), partner:partners(organization_name)')
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('tasks')
+      .select('id, title, status, deadline, assigned_to:users!tasks_assigned_to_fkey(full_name)')
+      .in('status', ['pending', 'ongoing'])
+      .gte('deadline', new Date().toISOString().split('T')[0])
+      .order('deadline', { ascending: true })
+      .limit(5)
   ])
 
   const statsCards = [
@@ -71,6 +88,25 @@ export default async function DashboardPage() {
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800">Pending</Badge>
+      case 'ongoing':
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800">In Progress</Badge>
+      case 'completed':
+        return <Badge variant="outline" className="bg-green-100 text-green-800">Completed</Badge>
+      case 'blocked':
+        return <Badge variant="outline" className="bg-red-100 text-red-800">Blocked</Badge>
+      default:
+        return <Badge variant="outline">{status}</Badge>
+    }
+  }
+
+  const isOverdue = (deadline: string) => {
+    return new Date(deadline) < new Date()
   }
 
   return (
@@ -169,6 +205,119 @@ export default async function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Tasks Overview */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Tasks */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Tasks</CardTitle>
+                <CardDescription>Latest tasks across all members</CardDescription>
+              </div>
+              <Link href="/tasks">
+                <Button variant="outline" size="sm">View All</Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {recentTasks && recentTasks.length > 0 ? (
+              <div className="space-y-4">
+                {recentTasks.map((task: any) => (
+                  <div key={task.id} className="flex items-start justify-between gap-3 pb-4 border-b last:border-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-sm text-gray-900 truncate">
+                          {task.title}
+                        </p>
+                        {getStatusBadge(task.status)}
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        Assigned to: {task.assigned_to?.full_name || 'Unknown'}
+                      </p>
+                      {task.event && (
+                        <p className="text-xs text-gray-500">Event: {task.event.title}</p>
+                      )}
+                      {task.partner && (
+                        <p className="text-xs text-gray-500">Partner: {task.partner.organization_name}</p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className={`flex items-center gap-1 text-xs ${isOverdue(task.deadline) && task.status !== 'completed' ? 'text-red-600' : 'text-gray-600'}`}>
+                        <Clock className="h-3 w-3" />
+                        {format(new Date(task.deadline), 'MMM dd')}
+                      </div>
+                      {isOverdue(task.deadline) && task.status !== 'completed' && (
+                        <Badge variant="outline" className="bg-red-50 text-red-700 text-xs">
+                          Overdue
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <CheckSquare className="h-12 w-12 text-gray-300 mb-3" />
+                <p className="text-gray-600 font-medium">No tasks yet</p>
+                <p className="text-gray-500 text-sm mt-1">Create your first task to get started</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Deadlines */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Upcoming Deadlines</CardTitle>
+                <CardDescription>Tasks due soon</CardDescription>
+              </div>
+              <Link href="/tasks">
+                <Button variant="outline" size="sm">View All</Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {upcomingTasks && upcomingTasks.length > 0 ? (
+              <div className="space-y-4">
+                {upcomingTasks.map((task: any) => (
+                  <div key={task.id} className="flex items-center justify-between gap-3 pb-4 border-b last:border-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-sm text-gray-900 truncate">
+                          {task.title}
+                        </p>
+                        {getStatusBadge(task.status)}
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        Assigned to: {task.assigned_to?.full_name || 'Unknown'}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
+                        <Clock className="h-3 w-3" />
+                        {format(new Date(task.deadline), 'MMM dd, yyyy')}
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {Math.ceil((new Date(task.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <AlertCircle className="h-12 w-12 text-gray-300 mb-3" />
+                <p className="text-gray-600 font-medium">No upcoming deadlines</p>
+                <p className="text-gray-500 text-sm mt-1">All caught up!</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
