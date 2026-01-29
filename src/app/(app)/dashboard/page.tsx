@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar, FileText, Users, CheckSquare, Clock, AlertCircle } from 'lucide-react'
-import { getCurrentUser, getCurrentUserProfile, getDashboardStats } from '@/lib/supabase/queries'
+import { getCurrentUser, getCurrentUserProfile, getDashboardStats, getApplicationStats } from '@/lib/supabase/queries'
 import Link from 'next/link'
 import { format } from 'date-fns'
 
@@ -20,10 +20,11 @@ export default async function DashboardPage() {
 
   const supabase = await createClient()
 
-  // Fetch profile, stats, and tasks in parallel
-  const [profile, stats, { data: recentTasks }, { data: upcomingTasks }] = await Promise.all([
+  // Fetch profile, stats, application stats, and tasks in parallel
+  const [profile, stats, appStats, { data: recentTasks }, { data: upcomingTasks }] = await Promise.all([
     getCurrentUserProfile(),
     getDashboardStats(),
+    getApplicationStats(),
     supabase
       .from('tasks')
       .select('id, title, status, deadline, assigned_to:users!tasks_assigned_to_fkey(full_name), event:events(title), partner:partners(organization_name)')
@@ -59,6 +60,13 @@ export default async function DashboardPage() {
       icon: Users,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
+    },
+    {
+      title: 'Applications',
+      value: appStats.total_applications,
+      icon: Users,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
     },
     {
       title: 'Active Tasks',
@@ -127,7 +135,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-5">
         {statsCards.map((stat) => {
           const Icon = stat.icon
           return (

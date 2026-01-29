@@ -49,6 +49,21 @@ export type TemplateCategory =
     | 'post_event_report'
     | 'other'
 
+export type ACMMembershipStatus = 'yes' | 'no' | 'not_sure'
+
+export interface EventApplication {
+    id: string
+    event_id: string
+    full_name: string
+    student_number: string
+    student_email: string
+    acm_membership_status: ACMMembershipStatus
+    course_year_level: string
+    applied_at: string
+    created_at: string
+    updated_at: string
+}
+
 export interface Database {
     public: {
         Tables: {
@@ -165,6 +180,44 @@ export interface Database {
                     approved_at?: string | null
                     notes?: string | null
                     created_by?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
+            event_applications: {
+                Row: {
+                    id: string
+                    event_id: string
+                    full_name: string
+                    student_number: string
+                    student_email: string
+                    acm_membership_status: ACMMembershipStatus
+                    course_year_level: string
+                    applied_at: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    event_id: string
+                    full_name: string
+                    student_number: string
+                    student_email: string
+                    acm_membership_status: ACMMembershipStatus
+                    course_year_level: string
+                    applied_at?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    event_id?: string
+                    full_name?: string
+                    student_number?: string
+                    student_email?: string
+                    acm_membership_status?: ACMMembershipStatus
+                    course_year_level?: string
+                    applied_at?: string
                     created_at?: string
                     updated_at?: string
                 }

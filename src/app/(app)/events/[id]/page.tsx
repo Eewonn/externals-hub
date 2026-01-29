@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Calendar, Users, Building2, Edit, Trash2, FileText } from 'lucide-react'
+import { Calendar, Users, Building2, Edit, Trash2, FileText, Check, X } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 
@@ -17,6 +17,19 @@ interface Participant {
   student_name: string
   year_level: string
   course: string
+}
+
+interface GuestApplication {
+  id: string
+  full_name: string
+  student_number: string
+  student_email: string
+  acm_membership_status: string
+  course_year_level: string
+  applied_at: string
+  status: 'pending' | 'approved' | 'rejected'
+  reviewed_by?: { full_name: string }
+  reviewed_at?: string
 }
 
 interface Event {
@@ -40,6 +53,7 @@ interface Event {
   group_name?: string
   competition_number?: number
   participants?: Participant[]
+  event_applications?: GuestApplication[]
 }
 
 export default function EventDetailPage() {
@@ -75,7 +89,7 @@ export default function EventDetailPage() {
       
       setUserRole(profile?.role || null)
 
-      // Fetch event details with participants
+      // Fetch event details with participants and guest applications
       const { data: eventData, error: eventError } = await supabase
         .from('events')
         .select(`
@@ -86,6 +100,18 @@ export default function EventDetailPage() {
             student_name,
             year_level,
             course
+          ),
+          event_applications(
+            id,
+            full_name,
+            student_number,
+            student_email,
+            acm_membership_status,
+            course_year_level,
+            applied_at,
+            status,
+            reviewed_by:users(full_name),
+            reviewed_at
           )
         `)
         .eq('id', params.id)
@@ -132,6 +158,56 @@ export default function EventDetailPage() {
 
       router.push('/events')
       router.refresh()
+    } catch (err) {
+      alert('An unexpected error occurred')
+    }
+  }
+
+  const handleApprove = async (applicationId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error } = await supabase.rpc('update_application_status', {
+        p_application_id: applicationId,
+        p_status: 'approved',
+        p_reviewer_id: user.id
+      })
+
+      if (error) {
+        alert('Failed to approve application: ' + error.message)
+        return
+      }
+
+      // Refresh the page to show updated status
+      fetchEventDetails()
+    } catch (err) {
+      alert('An unexpected error occurred')
+    }
+  }
+
+  const handleReject = async (applicationId: string) => {
+    if (!confirm('Are you sure you want to reject this application?')) {
+      return
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error } = await supabase.rpc('update_application_status', {
+        p_application_id: applicationId,
+        p_status: 'rejected',
+        p_reviewer_id: user.id
+      })
+
+      if (error) {
+        alert('Failed to reject application: ' + error.message)
+        return
+      }
+
+      // Refresh the page to show updated status
+      fetchEventDetails()
     } catch (err) {
       alert('An unexpected error occurred')
     }
@@ -307,19 +383,92 @@ export default function EventDetailPage() {
             <div className="flex items-center gap-2 mb-3">
               <Users className="h-5 w-5 text-gray-600" />
               <h3 className="font-semibold text-gray-900">
-                Participants ({event.participants?.length || 0})
+                Participants ({(event.participants?.length || 0) + (event.event_applications?.length || 0)})
               </h3>
             </div>
-            {event.participants && event.participants.length > 0 ? (
-              <ul className="grid gap-2 md:grid-cols-2">
-                {event.participants.map((participant) => (
-                  <li key={participant.id} className="flex items-center gap-2 text-gray-700">
-                    <span className="text-gray-400">•</span>
-                    {participant.student_name} ({participant.year_level} {participant.course})
-                  </li>
-                ))}
-              </ul>
-            ) : (
+            
+            {/* Competition Participants */}
+            {event.participants && event.participants.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Competition Participants</h4>
+                <ul className="grid gap-2 md:grid-cols-2">
+                  {event.participants.map((participant) => (
+                    <li key={participant.id} className="flex items-center gap-2 text-gray-700">
+                      <span className="text-gray-400">•</span>
+                      {participant.student_name} ({participant.year_level} {participant.course})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {/* Guest Applications */}
+            {event.event_applications && event.event_applications.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Guest Applications</h4>
+                <div className="space-y-3">
+                  {event.event_applications.map((application) => {
+                    const canReview = userRole === 'vp_externals' || 
+                                     userRole === 'director_partnerships' || 
+                                     userRole === 'director_sponsorships'
+                    
+                    const getStatusBadge = () => {
+                      switch (application.status) {
+                        case 'approved':
+                          return <Badge className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
+                        case 'rejected':
+                          return <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>
+                        default:
+                          return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>
+                      }
+                    }
+
+                    return (
+                      <div key={application.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-gray-900">{application.full_name}</span>
+                            {getStatusBadge()}
+                          </div>
+                          <p className="text-sm text-gray-600">{application.course_year_level}</p>
+                          <p className="text-xs text-gray-500">{application.student_email}</p>
+                          {application.reviewed_by && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Reviewed by {application.reviewed_by.full_name} on {format(new Date(application.reviewed_at!), 'MMM dd, yyyy')}
+                            </p>
+                          )}
+                        </div>
+                        {canReview && application.status === 'pending' && (
+                          <div className="flex gap-2 ml-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleApprove(application.id)}
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleReject(application.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+            
+            {(!event.participants || event.participants.length === 0) && 
+             (!event.event_applications || event.event_applications.length === 0) && (
               <p className="text-gray-600 italic">No participants listed yet</p>
             )}
           </div>

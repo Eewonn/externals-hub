@@ -8,6 +8,7 @@ An internal web application for managing the Externals Committee's operational w
 
 - **Events & Competitions** - Full CRUD operations with participant tracking
 - **Endorsements** - Google Docs integration with approval workflow
+- **Event Applications** - Public application portal for endorsed events (see [EVENT_APPLICATIONS.md](./EVENT_APPLICATIONS.md))
 - **Partners & Sponsors** - Contact management with status tracking
 - **Templates Hub** - Categorized access to Google Drive templates
 - **Tasks & Accountability** - Priority-based task tracking
@@ -17,6 +18,7 @@ An internal web application for managing the Externals Committee's operational w
 - Role-based access control (5 roles: VP Externals, Junior Officer, Directors, Adviser)
 - Protected routes with middleware
 - Granular permissions per module
+- Guest access for public application submissions
 
 ### 📊 Dashboard
 
