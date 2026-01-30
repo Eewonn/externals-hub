@@ -26,11 +26,26 @@ type User = {
   role: UserRole
   created_at: string
   updated_at: string
+  approval_status?: string
 }
 
 export default function UsersList({ users, currentUserId }: { users: User[]; currentUserId: string }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+
+  const getStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Pending Approval</Badge>
+      case 'approved':
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
+      case 'rejected':
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>
+      default:
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
+    }
+  }
 
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
@@ -64,10 +79,11 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
         user.email.toLowerCase().includes(searchQuery.toLowerCase())
       
       const matchesRole = roleFilter === 'all' || user.role === roleFilter
+      const matchesStatus = statusFilter === 'all' || (user.approval_status || 'approved') === statusFilter
 
-      return matchesSearch && matchesRole
+      return matchesSearch && matchesRole && matchesStatus
     })
-  }, [users, searchQuery, roleFilter])
+  }, [users, searchQuery, roleFilter, statusFilter])
 
   return (
     <Card>
@@ -76,8 +92,8 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
         <CardDescription>Manage user roles and access permissions</CardDescription>
         
         {/* Search and Filter Controls */}
-        <div className="flex gap-4 pt-4">
-          <div className="relative flex-1">
+        <div className="flex gap-4 pt-4 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search by name or email..."
@@ -86,10 +102,22 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
               className="pl-9"
             />
           </div>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-[200px]">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
               <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Filter by role" />
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[180px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
@@ -114,6 +142,7 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -124,6 +153,7 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
                     <TableCell className="font-medium">{user.full_name}</TableCell>
                     <TableCell className="text-gray-600">{user.email}</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
+                    <TableCell>{getStatusBadge(user.approval_status)}</TableCell>
                     <TableCell className="text-gray-600">{formatDate(user.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <UserActionsMenu user={user} currentUserId={currentUserId} />

@@ -25,8 +25,10 @@ export default async function UsersPage() {
   const supabase = await createClient()
   const { data: users } = await supabase
     .from('users')
-    .select('id, full_name, email, role, created_at, updated_at')
+    .select('id, full_name, email, role, created_at, updated_at, approval_status')
     .order('created_at', { ascending: false })
+
+  const pendingUsers = users?.filter(u => u.approval_status === 'pending').length || 0
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -70,11 +72,13 @@ export default async function UsersPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className={pendingUsers > 0 ? 'border-orange-300 bg-orange-50' : ''}>
           <CardHeader className="pb-2">
-            <CardDescription>Junior Officers</CardDescription>
-            <CardTitle className="text-3xl">
-              {users?.filter(u => u.role === 'junior_officer').length || 0}
+            <CardDescription className={pendingUsers > 0 ? 'text-orange-700' : ''}>
+              Pending Approval
+            </CardDescription>
+            <CardTitle className={`text-3xl ${pendingUsers > 0 ? 'text-orange-600' : ''}`}>
+              {pendingUsers}
             </CardTitle>
           </CardHeader>
         </Card>

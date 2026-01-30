@@ -25,7 +25,17 @@ export async function POST(request: Request) {
       }
     )
 
-    // Create user with admin client (auto-confirms since created by admin)
+    // Get the current admin user ID from the request
+    const authHeader = request.headers.get('authorization')
+    let createdBy: string | null = null
+    
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '')
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+      createdBy = user?.id || null
+    }
+
+    // Create user with admin client (auto-confirms email)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -44,14 +54,18 @@ export async function POST(request: Request) {
     }
 
     if (authData.user) {
-      // Create user profile in public.users table
+      // Create user profile in public.users table (admin-created users are auto-approved)
       const { error: profileError } = await supabaseAdmin
         .from('users')
         .insert({
           id: authData.user.id,
           email,
           full_name,
-          role
+          role,
+          approval_status: 'approved', // Admin-created users are auto-approved
+          approved_at: new Date().toISOString(),
+          approved_by: createdBy,
+          created_by: createdBy
         })
 
       if (profileError) {
