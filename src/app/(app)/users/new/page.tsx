@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ArrowLeft, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { UserRole } from '@/lib/supabase/types'
@@ -16,6 +17,7 @@ export default function NewUserPage() {
   const router = useRouter()
   const supabase = createClient()
   const [isLoading, setIsLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
@@ -26,37 +28,40 @@ export default function NewUserPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setSuccessMessage(null)
 
     try {
-      // Create user in auth.users
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.full_name
-          }
-        }
+      // Call API route to create user (uses admin privileges)
+      const response = await fetch('/api/users/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
       })
 
-      if (authError) throw authError
+      const data = await response.json()
 
-      if (authData.user) {
-        // Create user profile in public.users
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: formData.email,
-            full_name: formData.full_name,
-            role: formData.role
-          })
-
-        if (profileError) throw profileError
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create user')
       }
 
-      router.push('/users')
-      router.refresh()
+      // Show success message with verification info
+      setSuccessMessage(data.message || 'User created successfully!')
+      
+      // Reset form
+      setFormData({
+        email: '',
+        full_name: '',
+        role: 'junior_officer' as UserRole,
+        password: ''
+      })
+
+      // Redirect after showing message
+      setTimeout(() => {
+        router.push('/users')
+        router.refresh()
+      }, 3000)
     } catch (error: any) {
       console.error('Error creating user:', error)
       alert(error.message || 'Failed to create user')
@@ -88,6 +93,15 @@ export default function NewUserPage() {
           <CardDescription>Fill in the details for the new user</CardDescription>
         </CardHeader>
         <CardContent>
+          {successMessage && (
+            <Alert className="mb-4 border-green-200 bg-green-50">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                {successMessage}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="full_name">Full Name</Label>
@@ -111,6 +125,9 @@ export default function NewUserPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
+              <p className="text-sm text-gray-500">
+                User will be able to sign in immediately after creation.
+              </p>
             </div>
 
             <div className="space-y-2">

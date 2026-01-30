@@ -32,7 +32,12 @@ export default function LoginPage() {
       })
 
       if (error) {
-        setError(error.message)
+        // Provide better error messages
+        if (error.message.includes('Email not confirmed')) {
+          setError('Email not confirmed. Please check your inbox for a verification email.')
+        } else {
+          setError(error.message)
+        }
         return
       }
 
