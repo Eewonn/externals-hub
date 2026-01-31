@@ -46,32 +46,37 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        // Check if user is approved
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('approval_status')
-          .eq('id', data.user.id)
-          .single()
+        // Check if user is approved via API route
+        try {
+          const response = await fetch('/api/auth/check-status')
+          
+          if (!response.ok) {
+            setError('Error checking user status')
+            await supabase.auth.signOut()
+            return
+          }
 
-        if (userError) {
+          const userData = await response.json()
+
+          if (userData.approval_status === 'pending') {
+            await supabase.auth.signOut()
+            setError('Your account is pending approval. Please wait for an administrator to approve your registration.')
+            return
+          }
+
+          if (userData.approval_status === 'rejected') {
+            await supabase.auth.signOut()
+            setError('Your registration request has been declined. Please contact an administrator for more information.')
+            return
+          }
+
+          router.push('/dashboard')
+          router.refresh()
+        } catch (err) {
           setError('Error checking user status')
-          return
-        }
-
-        if (userData.approval_status === 'pending') {
           await supabase.auth.signOut()
-          setError('Your account is pending approval. Please wait for an administrator to approve your registration.')
           return
         }
-
-        if (userData.approval_status === 'rejected') {
-          await supabase.auth.signOut()
-          setError('Your registration request has been declined. Please contact an administrator for more information.')
-          return
-        }
-
-        router.push('/dashboard')
-        router.refresh()
       }
     } catch (err) {
       setError('An unexpected error occurred')
