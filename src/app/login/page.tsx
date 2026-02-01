@@ -52,7 +52,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-lg border-gray-200">
         <CardHeader className="space-y-1">
           <CardTitle className="text-3xl font-bold text-center text-gray-900">
-            Externals Hub
+            ACM Externals Hub
           </CardTitle>
           <CardDescription className="text-center text-base text-gray-600">
             Sign in to access the Externals Committee management system
