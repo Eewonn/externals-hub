@@ -31,7 +31,7 @@ export default async function TemplatesPage() {
     .from('templates')
     .select('*')
     .order('category', { ascending: true })
-    .order('name', { ascending: true })
+    .order('title', { ascending: true })
 
   // Group templates by category
   const groupedTemplates = templates?.reduce((acc: any, template: any) => {
