@@ -25,10 +25,8 @@ export default async function UsersPage() {
   const supabase = await createClient()
   const { data: users } = await supabase
     .from('users')
-    .select('id, full_name, email, role, created_at, updated_at, approval_status')
+    .select('id, full_name, email, role, created_at, updated_at')
     .order('created_at', { ascending: false })
-
-  const pendingUsers = users?.filter(u => u.approval_status === 'pending').length || 0
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -49,7 +47,7 @@ export default async function UsersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Users</CardDescription>
@@ -69,16 +67,6 @@ export default async function UsersPage() {
             <CardDescription>Directors</CardDescription>
             <CardTitle className="text-3xl">
               {users?.filter(u => u.role === 'director_partnerships' || u.role === 'director_sponsorships').length || 0}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className={pendingUsers > 0 ? 'border-orange-300 bg-orange-50' : ''}>
-          <CardHeader className="pb-2">
-            <CardDescription className={pendingUsers > 0 ? 'text-orange-700' : ''}>
-              Pending Approval
-            </CardDescription>
-            <CardTitle className={`text-3xl ${pendingUsers > 0 ? 'text-orange-600' : ''}`}>
-              {pendingUsers}
             </CardTitle>
           </CardHeader>
         </Card>

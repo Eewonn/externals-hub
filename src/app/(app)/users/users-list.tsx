@@ -32,20 +32,6 @@ type User = {
 export default function UsersList({ users, currentUserId }: { users: User[]; currentUserId: string }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-
-  const getStatusBadge = (status?: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Pending Approval</Badge>
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
-      case 'rejected':
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>
-      default:
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
-    }
-  }
 
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
@@ -79,11 +65,10 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
         user.email.toLowerCase().includes(searchQuery.toLowerCase())
       
       const matchesRole = roleFilter === 'all' || user.role === roleFilter
-      const matchesStatus = statusFilter === 'all' || (user.approval_status || 'approved') === statusFilter
 
-      return matchesSearch && matchesRole && matchesStatus
+      return matchesSearch && matchesRole
     })
-  }, [users, searchQuery, roleFilter, statusFilter])
+  }, [users, searchQuery, roleFilter])
 
   return (
     <Card>
@@ -102,18 +87,6 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
               className="pl-9"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger className="w-[180px]">
               <Filter className="mr-2 h-4 w-4" />
@@ -142,7 +115,6 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -153,7 +125,6 @@ export default function UsersList({ users, currentUserId }: { users: User[]; cur
                     <TableCell className="font-medium">{user.full_name}</TableCell>
                     <TableCell className="text-gray-600">{user.email}</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
-                    <TableCell>{getStatusBadge(user.approval_status)}</TableCell>
                     <TableCell className="text-gray-600">{formatDate(user.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <UserActionsMenu user={user} currentUserId={currentUserId} />
