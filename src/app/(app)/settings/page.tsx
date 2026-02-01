@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { User, Mail, Shield } from 'lucide-react'
 import { getCurrentUser, getCurrentUserProfile } from '@/lib/supabase/queries'
 import ProfileForm from './profile-form'
+import PasswordForm from './password-form'
 
 export default async function AccountSettingsPage() {
   const user = await getCurrentUser()
@@ -97,6 +98,19 @@ export default async function AccountSettingsPage() {
               email: profile?.email || user.email || '',
             }}
           />
+        </CardContent>
+      </Card>
+
+      {/* Password Change Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Change Password</CardTitle>
+          <CardDescription>
+            Update your password to keep your account secure
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PasswordForm />
         </CardContent>
       </Card>
 
