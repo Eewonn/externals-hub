@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,11 @@ export default function EventsList({ events, canCreate, initialType }: { events:
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>(initialType || 'all')
   const [sortOrder, setSortOrder] = useState<string>('newest')
+
+  // Sync typeFilter with initialType when it changes
+  useEffect(() => {
+    setTypeFilter(initialType || 'all')
+  }, [initialType])
 
   const getCategoryBadge = (category: string | null | undefined) => {
     if (!category) return null

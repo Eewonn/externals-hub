@@ -30,6 +30,11 @@ export function ApplicationsDashboard({ initialType }: ApplicationsDashboardProp
     initialType === 'event' || initialType === 'competition' ? initialType : 'all'
   )
 
+  // Sync typeFilter with initialType when it changes
+  useEffect(() => {
+    setTypeFilter(initialType === 'event' || initialType === 'competition' ? initialType : 'all')
+  }, [initialType])
+
   useEffect(() => {
     fetchAllApplications()
   }, [])

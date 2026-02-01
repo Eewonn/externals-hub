@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,6 +25,11 @@ export default function PartnersList({ partners, canCreate, initialType }: { par
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>(initialType || 'all')
+
+  // Sync typeFilter with initialType when it changes
+  useEffect(() => {
+    setTypeFilter(initialType || 'all')
+  }, [initialType])
 
   const getStatusColor = (status: string) => {
     switch (status) {

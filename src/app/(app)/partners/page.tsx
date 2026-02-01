@@ -8,8 +8,9 @@ import PartnersList from './partners-list'
 export default async function PartnersPage({
   searchParams,
 }: {
-  searchParams: { type?: string }
+  searchParams: Promise<{ type?: string }>
 }) {
+  const params = await searchParams
   const supabase = await createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -33,6 +34,8 @@ export default async function PartnersPage({
 
   const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer' || profile?.role === 'adviser'
 
+  const initialType = params.type === 'partner' || params.type === 'sponsor' ? params.type : undefined
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
@@ -54,7 +57,7 @@ export default async function PartnersPage({
       </div>
 
       {/* Partners List */}
-      <PartnersList partners={partners || []} canCreate={canCreate} initialType={searchParams.type} />
+      <PartnersList partners={partners || []} canCreate={canCreate} initialType={initialType} />
     </div>
   )
 }

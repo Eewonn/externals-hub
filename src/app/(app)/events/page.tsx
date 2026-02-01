@@ -8,8 +8,9 @@ import EventsList from './events-list'
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: { type?: string }
+  searchParams: Promise<{ type?: string }>
 }) {
+  const params = await searchParams
   const supabase = await createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -46,6 +47,8 @@ export default async function EventsPage({
 
   const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer' || profile?.role === 'adviser'
 
+  const initialType = params.type === 'event' || params.type === 'competition' ? params.type : undefined
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
@@ -67,7 +70,7 @@ export default async function EventsPage({
       </div>
 
       {/* Events List */}
-      <EventsList events={events || []} canCreate={canCreate} initialType={searchParams.type} />
+      <EventsList events={events || []} canCreate={canCreate} initialType={initialType} />
     </div>
   )
 }

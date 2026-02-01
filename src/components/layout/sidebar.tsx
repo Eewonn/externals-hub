@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { 
@@ -101,6 +101,7 @@ interface SidebarProps {
 export default function Sidebar({ userName, userRole }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [isPending, startTransition] = useTransition()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -185,15 +186,25 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
                     <div className="ml-4 mt-1 space-y-1">
                       {item.subItems?.map((subItem) => {
                         const SubIcon = subItem.icon
+                        // Check if this subitem is active by matching pathname and query params
+                        const subItemUrl = new URL(subItem.href, 'http://dummy')
+                        const isSubItemActive = pathname === subItemUrl.pathname && 
+                          searchParams.get('type') === subItemUrl.searchParams.get('type')
+                        
                         return (
                           <Link
                             key={subItem.href}
                             href={subItem.href}
                             onClick={(e) => {
                               handleNavigation(subItem.href, e)
-                              setExpandedItem(null)
                             }}
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                            className={`
+                              flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors
+                              ${isSubItemActive 
+                                ? 'bg-gray-200 text-gray-900 font-medium' 
+                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                              }
+                            `}
                           >
                             <SubIcon className="h-4 w-4" />
                             <span>{subItem.name}</span>
