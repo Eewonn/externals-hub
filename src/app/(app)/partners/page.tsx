@@ -27,7 +27,7 @@ export default async function PartnersPage() {
     .select('*, created_by(full_name)')
     .order('created_at', { ascending: false })
 
-  const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer'
+  const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer' || profile?.role === 'adviser'
 
   return (
     <div className="space-y-4 sm:space-y-6">

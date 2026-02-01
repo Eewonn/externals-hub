@@ -40,7 +40,7 @@ export default async function EventsPage() {
     console.error('Error fetching events:', error)
   }
 
-  const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer'
+  const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer' || profile?.role === 'adviser'
 
   return (
     <div className="space-y-4 sm:space-y-6">

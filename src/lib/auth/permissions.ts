@@ -3,10 +3,10 @@ import { UserRole } from '@/lib/supabase/types'
 export const PERMISSIONS = {
     // Event permissions
     canCreateEvent: (role: UserRole) =>
-        ['vp_externals', 'junior_officer'].includes(role),
+        ['vp_externals', 'junior_officer', 'adviser'].includes(role),
 
     canEditEvent: (role: UserRole) =>
-        ['vp_externals', 'junior_officer'].includes(role),
+        ['vp_externals', 'junior_officer', 'adviser'].includes(role),
 
     canUpdateEventStatus: (role: UserRole) =>
         role === 'vp_externals',
@@ -23,10 +23,10 @@ export const PERMISSIONS = {
 
     // Partner permissions
     canCreatePartner: (role: UserRole) =>
-        ['vp_externals', 'junior_officer'].includes(role),
+        ['vp_externals', 'junior_officer', 'adviser'].includes(role),
 
     canEditPartner: (role: UserRole) =>
-        ['vp_externals', 'junior_officer'].includes(role),
+        ['vp_externals', 'junior_officer', 'adviser'].includes(role),
 
     canUpdatePartnerStatus: (role: UserRole) =>
         ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'].includes(role),
