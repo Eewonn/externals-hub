@@ -114,7 +114,7 @@ export default function NewTemplatePage() {
                   <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="endorsement">Endorsement</SelectItem>
                   <SelectItem value="apf">APF (Activity Proposal Form)</SelectItem>
-                  <SelectItem value="app">APP (Activity Progress Plan)</SelectItem>
+                  <SelectItem value="app">APP (Activity Proposal Plan)</SelectItem>
                   <SelectItem value="post_event_report">Post Event Report</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>

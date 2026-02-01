@@ -51,7 +51,7 @@ const navigation = [
   { name: 'Communications', href: '/communications', icon: Mail, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
   { name: 'Templates', href: '/templates', icon: FolderOpen, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
-  { name: 'Schedules', href: '/schedules', icon: Clock, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
+  { name: 'Schedules', href: '/schedules', icon: Clock, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Users', href: '/users', icon: UserCog, roles: ['vp_externals', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
 ]
 
