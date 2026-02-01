@@ -5,7 +5,11 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import EventsList from './events-list'
 
-export default async function EventsPage() {
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: { type?: string }
+}) {
   const supabase = await createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -63,7 +67,7 @@ export default async function EventsPage() {
       </div>
 
       {/* Events List */}
-      <EventsList events={events || []} canCreate={canCreate} />
+      <EventsList events={events || []} canCreate={canCreate} initialType={searchParams.type} />
     </div>
   )
 }

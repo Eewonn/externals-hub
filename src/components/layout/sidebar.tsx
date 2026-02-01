@@ -13,13 +13,15 @@ import {
   CheckSquare,
   LogOut,
   ChevronRight,
+  ChevronDown,
   UserCog,
   Loader2,
   Settings,
   Clock,
   Menu,
   X,
-  ClipboardList
+  ClipboardList,
+  Trophy
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,7 +35,16 @@ import { UserRole } from '@/lib/supabase/types'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
-  { name: 'Events', href: '/events', icon: Calendar, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
+  { 
+    name: 'Events', 
+    href: '/events', 
+    icon: Calendar, 
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
+    subItems: [
+      { name: 'Events', href: '/events?type=event', icon: Calendar },
+      { name: 'Competitions', href: '/events?type=competition', icon: Trophy }
+    ]
+  },
   { name: 'Endorsements', href: '/endorsements', icon: FileText, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Applications', href: '/applications', icon: ClipboardList, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
   { name: 'Partners', href: '/partners', icon: Users, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
@@ -72,6 +83,7 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
   const supabase = createClient()
   const [isPending, startTransition] = useTransition()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -125,27 +137,72 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
           .map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
           const Icon = item.icon
+          const hasSubItems = item.subItems && item.subItems.length > 0
+          const isExpanded = expandedItem === item.name
           
           return (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={(e) => handleNavigation(item.href, e)}
-              prefetch={true}
-              className={`
-                flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors
-                ${isActive 
-                  ? 'bg-gray-900 text-white' 
-                  : 'text-gray-700 hover:bg-gray-100'
-                }
-              `}
-            >
-              <div className="flex items-center gap-3">
-                <Icon className="h-5 w-5" />
-                <span>{item.name}</span>
-              </div>
-              {isActive && <ChevronRight className="h-4 w-4" />}
-            </Link>
+            <div key={item.name}>
+              {hasSubItems ? (
+                <>
+                  <button
+                    onClick={() => setExpandedItem(isExpanded ? null : item.name)}
+                    className={`
+                      w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                      ${isActive 
+                        ? 'bg-gray-900 text-white' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="h-5 w-5" />
+                      <span>{item.name}</span>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isExpanded && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {item.subItems?.map((subItem) => {
+                        const SubIcon = subItem.icon
+                        return (
+                          <Link
+                            key={subItem.href}
+                            href={subItem.href}
+                            onClick={(e) => {
+                              handleNavigation(subItem.href, e)
+                              setExpandedItem(null)
+                            }}
+                            className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                          >
+                            <SubIcon className="h-4 w-4" />
+                            <span>{subItem.name}</span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  href={item.href}
+                  onClick={(e) => handleNavigation(item.href, e)}
+                  prefetch={true}
+                  className={`
+                    flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                    ${isActive 
+                      ? 'bg-gray-900 text-white' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5" />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && <ChevronRight className="h-4 w-4" />}
+                </Link>
+              )}
+            </div>
           )
         })}
       </nav>

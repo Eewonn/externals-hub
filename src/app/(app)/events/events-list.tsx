@@ -38,10 +38,10 @@ type Event = {
   participants?: Participant[]
 }
 
-export default function EventsList({ events, canCreate }: { events: Event[]; canCreate: boolean }) {
+export default function EventsList({ events, canCreate, initialType }: { events: Event[]; canCreate: boolean; initialType?: string }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>(initialType || 'all')
   const [sortOrder, setSortOrder] = useState<string>('newest')
 
   const getCategoryBadge = (category: string | null | undefined) => {
@@ -225,17 +225,6 @@ export default function EventsList({ events, canCreate }: { events: Event[]; can
                 <SelectItem value="ongoing">Ongoing</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full sm:w-[160px]">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="competition">Competition</SelectItem>
-                <SelectItem value="event">Event</SelectItem>
               </SelectContent>
             </Select>
           </div>
