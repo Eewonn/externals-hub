@@ -15,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Externals Hub - Committee Management",
-  description: "Internal management system for the Externals Committee",
+  title: "ACM Externals Hub - Committee Management",
+  description: "Internal management system for the ACM Externals Committee",
+  icons: {
+    icon: '/acmlogo.svg',
+  },
 };
 
 export default function RootLayout({

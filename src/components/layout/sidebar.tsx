@@ -150,6 +150,7 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
       <div className="p-6 border-b border-gray-200">
         <h1 className="text-xl font-bold text-gray-900">ACM Externals Hub</h1>
         <p className="text-xs text-gray-400 mt-0.5">by Ewonn</p>
+
       </div>
 
       {/* Navigation */}
