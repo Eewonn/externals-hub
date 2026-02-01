@@ -1,83 +1,152 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { MessageCircle, X, Search } from 'lucide-react'
+import { UserRole } from '@/lib/supabase/types'
 
 const faqs = [
   {
     category: 'Getting Started',
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
     questions: [
       {
-        q: 'How do I add a new event?',
-        a: 'Navigate to the Events page and click the "Create Event" button. Fill in the required details including title, date, description, and participants.'
+        q: 'How do I navigate between Events and Competitions?',
+        a: 'Click on "External Activities" in the sidebar to expand the dropdown, then select either "Events" or "Competitions" to view filtered results. The dropdown stays open for easy switching.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
+      },
+      {
+        q: 'How do I add a new event or competition?',
+        a: 'Navigate to External Activities in the sidebar, select Events or Competitions, then click the "Create Event" button. Fill in the required details including title, date, description, and participants.',
+        roles: ['vp_externals', 'junior_officer', 'adviser'] as UserRole[]
       },
       {
         q: 'How do I manage user roles?',
-        a: 'Only VP Externals can manage user roles. Go to the Users page, click the three-dot menu next to a user, and select "Change Role".'
+        a: 'Only VP Externals, Directors, and Junior Officers can manage user roles. Go to the Users page, click the three-dot menu next to a user, and select "Change Role".',
+        roles: ['vp_externals', 'director_partnerships', 'director_sponsorships'] as UserRole[]
       },
       {
         q: 'What are the different user roles?',
-        a: 'There are 5 roles: VP Externals (full access), Directors (review endorsements, manage partners), Junior Officers (create events/endorsements), and Adviser (read-only access).'
+        a: 'There are 5 roles: VP Externals (full access), Director Partnerships & Director Sponsorships (manage partners and review endorsements), Junior Officers (create events/endorsements), and Adviser (can create events and partners, view most sections).',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
       }
     ]
   },
   {
     category: 'Events & Competitions',
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
     questions: [
       {
+        q: 'How do I filter between Events and Competitions?',
+        a: 'Use the "External Activities" dropdown in the sidebar. Click it to expand and select either "Events" or "Competitions" to see only that type. You can also use the filter dropdown on the main page.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
+      },
+      {
         q: 'How do I add participants to an event?',
-        a: 'When creating or editing an event, you can add participants with their details including name, year level, and course in the participants section.'
+        a: 'When creating or editing an event, you can add participants with their details including name, year level, and course in the participants section.',
+        roles: ['vp_externals', 'junior_officer', 'adviser'] as UserRole[]
       },
       {
         q: 'How do I export events to Excel?',
-        a: 'On the Events page, use the filters to select the events you want, then click the "Export to CSV" button at the top right.'
+        a: 'On the Events page, use the filters to select the events you want, then click the "Export to CSV" button at the top right. The export includes all filtered results.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
       },
       {
         q: 'What\'s the difference between Category and Nature?',
-        a: 'Category refers to the scope (Local, Regional, National), while Nature indicates if it\'s Academic or Non-Academic.'
+        a: 'Category refers to the scope (Local - Regional, Local - National, International), while Nature indicates if it\'s Academic or Non-Academic.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
       }
     ]
   },
   {
-    category: 'Schedules',
+    category: 'Partners & Sponsors',
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
+    questions: [
+      {
+        q: 'How do I navigate between Partners and Sponsors?',
+        a: 'Click on "Industry Partners" in the sidebar to expand the dropdown, then select either "Partnerships" or "Sponsorships" to view filtered results.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
+      },
+      {
+        q: 'How do I add a new partner or sponsor?',
+        a: 'Navigate to Industry Partners in the sidebar, select Partnerships or Sponsorships, then click "Add Partner". Include contact details and select the appropriate relationship type.',
+        roles: ['vp_externals', 'junior_officer', 'adviser'] as UserRole[]
+      },
+      {
+        q: 'Who can manage partners and sponsors?',
+        a: 'VP Externals, Junior Officers, Directors, and Advisers can create and manage partner organizations.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
+      }
+    ]
+  },
+  {
+    category: 'Applications',
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[],
+    questions: [
+      {
+        q: 'How do I view event applications?',
+        a: 'Click "Activity Applications" in the sidebar to expand the dropdown, then select either "Events" or "Competitions" to filter applications by type.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[]
+      },
+      {
+        q: 'How do I export applications?',
+        a: 'On the Activity Applications page, each event has an export button that downloads a CSV file with all participant information for that specific event.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[]
+      }
+    ]
+  },
+  {
+    category: 'Schedules & Endorsements',
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
     questions: [
       {
         q: 'Can Junior Officers see all schedules?',
-        a: 'No, Junior Officers can only see their own schedules. VP Externals and Directors can view all officer schedules.'
+        a: 'No, Junior Officers can only see their own schedules. VP Externals and Directors can view all officer schedules.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
       },
       {
         q: 'How do I add schedule blocks?',
-        a: 'On the Schedules page, click "Add Schedule" and select the day, time slots, and semester. The schedule will be automatically saved.'
-      }
-    ]
-  },
-  {
-    category: 'Partners & Endorsements',
-    questions: [
+        a: 'On the Schedules page, click "Add Schedule" and select the day, time slots, and semester. The schedule will be automatically saved.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
+      },
       {
         q: 'How do I create an endorsement request?',
-        a: 'Go to Endorsements page, click "Create Endorsement", fill in the organization details, purpose, and upload any required documents.'
+        a: 'Go to Endorsements page, click "Create Endorsement", fill in the organization details, purpose, and upload any required documents.',
+        roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[]
       },
       {
         q: 'Who can approve endorsements?',
-        a: 'Directors and VP Externals can review and approve endorsement requests.'
-      },
-      {
-        q: 'How do I add a new partner organization?',
-        a: 'Navigate to the Partners page and click "Add Partner". Include contact details and partnership tier information.'
+        a: 'Directors and VP Externals can review and approve endorsement requests.',
+        roles: ['vp_externals', 'director_partnerships', 'director_sponsorships'] as UserRole[]
       }
     ]
   }
 ]
 
-export default function FaqChatbot() {
+interface FaqChatbotProps {
+  userRole?: string
+}
+
+export default function FaqChatbot({ userRole }: FaqChatbotProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const filteredFaqs = faqs.map(category => ({
+  // Filter FAQs based on user role
+  const roleFaqs = useMemo(() => {
+    if (!userRole) return faqs
+    
+    return faqs
+      .filter(category => category.roles.includes(userRole as UserRole))
+      .map(category => ({
+        ...category,
+        questions: category.questions.filter(q => q.roles.includes(userRole as UserRole))
+      }))
+      .filter(category => category.questions.length > 0)
+  }, [userRole])
+
+  const filteredFaqs = roleFaqs.map(category => ({
     ...category,
     questions: category.questions.filter(
       faq =>

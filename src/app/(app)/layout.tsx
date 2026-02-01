@@ -33,7 +33,7 @@ export default async function DashboardLayout({
           {children}
         </div>
       </main>
-      <FaqChatbot />
+      <FaqChatbot userRole={profile?.role} />
     </div>
   )
 }
