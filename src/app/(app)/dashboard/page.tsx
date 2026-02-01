@@ -7,6 +7,7 @@ import { Calendar, FileText, Users, CheckSquare, Clock, AlertCircle } from 'luci
 import { getCurrentUser, getCurrentUserProfile, getDashboardStats, getApplicationStats } from '@/lib/supabase/queries'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import PasswordChangeAlert from '@/components/password-change-alert'
 
 // Revalidate every 60 seconds for dashboard stats
 export const revalidate = 60
@@ -119,6 +120,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Password Change Alert */}
+      <PasswordChangeAlert 
+        userEmail={user.email || ''} 
+        accountCreatedAt={user.created_at}
+      />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
