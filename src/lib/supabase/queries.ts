@@ -156,6 +156,7 @@ export const getAllApplications = cache(async () => {
         id,
         title,
         event_date,
+        event_type,
         organizer
       )
     `)

@@ -7,7 +7,12 @@ export const metadata = {
   description: 'View and manage all event applications',
 }
 
-export default async function ApplicationsPage() {
+export default async function ApplicationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>
+}) {
+  const params = await searchParams
   const user = await getCurrentUserProfile()
 
   // Check if user has permission to view applications
@@ -20,6 +25,8 @@ export default async function ApplicationsPage() {
     redirect('/login')
   }
 
+  const initialType = params.type === 'event' || params.type === 'competition' ? params.type : undefined
+
   return (
     <div className="container py-8">
       <div className="space-y-6">
@@ -30,7 +37,7 @@ export default async function ApplicationsPage() {
           </p>
         </div>
 
-        <ApplicationsDashboard />
+        <ApplicationsDashboard initialType={initialType} />
       </div>
     </div>
   )

@@ -22,7 +22,9 @@ import {
   X,
   ClipboardList,
   Trophy,
-  Building2
+  Building2,
+  Sparkles,
+  Handshake
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -37,9 +39,9 @@ import { UserRole } from '@/lib/supabase/types'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { 
-    name: 'Events', 
+    name: 'External Activities', 
     href: '/events', 
-    icon: Calendar, 
+    icon: Sparkles, 
     roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
     subItems: [
       { name: 'Events', href: '/events?type=event', icon: Calendar },
@@ -47,17 +49,26 @@ const navigation = [
     ]
   },
   { 
-    name: 'Partners', 
+    name: 'Industry Partners', 
     href: '/partners', 
-    icon: Users, 
+    icon: Handshake, 
     roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
     subItems: [
-      { name: 'Partners', href: '/partners?type=partner', icon: Users },
-      { name: 'Sponsors', href: '/partners?type=sponsor', icon: Building2 }
+      { name: 'Partnerships', href: '/partners?type=partner', icon: Users },
+      { name: 'Sponsorships', href: '/partners?type=sponsor', icon: Building2 }
+    ]
+  },
+  { 
+    name: 'Activity Applications', 
+    href: '/applications', 
+    icon: ClipboardList, 
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[],
+    subItems: [
+      { name: 'Events', href: '/applications?type=event', icon: Calendar },
+      { name: 'Competitions', href: '/applications?type=competition', icon: Trophy }
     ]
   },
   { name: 'Endorsements', href: '/endorsements', icon: FileText, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
-  { name: 'Applications', href: '/applications', icon: ClipboardList, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
   { name: 'Communications', href: '/communications', icon: Mail, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
   { name: 'Templates', href: '/templates', icon: FolderOpen, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },

@@ -1,25 +1,34 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { EventApplication } from '@/lib/supabase/types'
+import { EventApplication, EventType } from '@/lib/supabase/types'
 import { EventApplicationsList } from '@/components/event-applications-list'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface EventWithApplications {
   id: string
   title: string
   organizer?: string
   eventDate?: string
+  eventType?: EventType
   applications: EventApplication[]
 }
 
-export function ApplicationsDashboard() {
+interface ApplicationsDashboardProps {
+  initialType?: string
+}
+
+export function ApplicationsDashboard({ initialType }: ApplicationsDashboardProps) {
   const [eventsWithApplications, setEventsWithApplications] = useState<EventWithApplications[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [typeFilter, setTypeFilter] = useState<EventType | 'all'>(
+    initialType === 'event' || initialType === 'competition' ? initialType : 'all'
+  )
 
   useEffect(() => {
     fetchAllApplications()
@@ -47,6 +56,7 @@ export function ApplicationsDashboard() {
               title: app.events?.title || 'Unknown Event',
               organizer: app.events?.organizer,
               eventDate: app.events?.event_date,
+              eventType: app.events?.event_type,
               applications: [],
             }
           }
@@ -145,13 +155,33 @@ export function ApplicationsDashboard() {
     )
   }
 
-  const totalApplications = eventsWithApplications.reduce(
+  // Filter events based on type
+  const filteredEvents = typeFilter === 'all'
+    ? eventsWithApplications
+    : eventsWithApplications.filter((event) => event.eventType === typeFilter)
+
+  const totalApplications = filteredEvents.reduce(
     (sum, event) => sum + event.applications.length,
     0
   )
 
   return (
     <div className="space-y-6">
+      {/* Filter */}
+      <div className="flex items-center gap-4">
+        <label className="text-sm font-medium">Filter by type:</label>
+        <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as EventType | 'all')}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="event">Events</SelectItem>
+            <SelectItem value="competition">Competitions</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Summary Card */}
       <Card>
         <CardHeader>
@@ -165,12 +195,12 @@ export function ApplicationsDashboard() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Events with Applications</p>
-              <p className="text-3xl font-bold">{eventsWithApplications.length}</p>
+              <p className="text-3xl font-bold">{filteredEvents.length}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Average per Event</p>
               <p className="text-3xl font-bold">
-                {Math.round(totalApplications / eventsWithApplications.length)}
+                {filteredEvents.length > 0 ? Math.round(totalApplications / filteredEvents.length) : 0}
               </p>
             </div>
           </div>
@@ -180,14 +210,25 @@ export function ApplicationsDashboard() {
       {/* Applications by Event */}
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Applications by Event</h2>
-        {eventsWithApplications.map((event) => (
-          <EventApplicationsList
-            key={event.id}
-            eventTitle={event.title}
-            applications={event.applications}
-            onExport={() => handleExport(event.id, event.title)}
-          />
-        ))}
+        {filteredEvents.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>No Applications Found</CardTitle>
+              <CardDescription>
+                No applications found for the selected filter.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          filteredEvents.map((event) => (
+            <EventApplicationsList
+              key={event.id}
+              eventTitle={event.title}
+              applications={event.applications}
+              onExport={() => handleExport(event.id, event.title)}
+            />
+          ))
+        )}
       </div>
     </div>
   )
