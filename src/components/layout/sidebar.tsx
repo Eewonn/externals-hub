@@ -21,7 +21,8 @@ import {
   Menu,
   X,
   ClipboardList,
-  Trophy
+  Trophy,
+  Building2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -45,9 +46,18 @@ const navigation = [
       { name: 'Competitions', href: '/events?type=competition', icon: Trophy }
     ]
   },
+  { 
+    name: 'Partners', 
+    href: '/partners', 
+    icon: Users, 
+    roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[],
+    subItems: [
+      { name: 'Partners', href: '/partners?type=partner', icon: Users },
+      { name: 'Sponsors', href: '/partners?type=sponsor', icon: Building2 }
+    ]
+  },
   { name: 'Endorsements', href: '/endorsements', icon: FileText, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Applications', href: '/applications', icon: ClipboardList, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
-  { name: 'Partners', href: '/partners', icon: Users, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Communications', href: '/communications', icon: Mail, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },
   { name: 'Templates', href: '/templates', icon: FolderOpen, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships', 'adviser'] as UserRole[] },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare, roles: ['vp_externals', 'junior_officer', 'director_partnerships', 'director_sponsorships'] as UserRole[] },

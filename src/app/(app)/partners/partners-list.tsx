@@ -21,10 +21,10 @@ type Partner = {
   created_by: { full_name: string } | null
 }
 
-export default function PartnersList({ partners, canCreate }: { partners: Partner[]; canCreate: boolean }) {
+export default function PartnersList({ partners, canCreate, initialType }: { partners: Partner[]; canCreate: boolean; initialType?: string }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>(initialType || 'all')
 
   const getStatusColor = (status: string) => {
     switch (status) {

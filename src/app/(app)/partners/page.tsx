@@ -5,7 +5,11 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import PartnersList from './partners-list'
 
-export default async function PartnersPage() {
+export default async function PartnersPage({
+  searchParams,
+}: {
+  searchParams: { type?: string }
+}) {
   const supabase = await createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -50,7 +54,7 @@ export default async function PartnersPage() {
       </div>
 
       {/* Partners List */}
-      <PartnersList partners={partners || []} canCreate={canCreate} />
+      <PartnersList partners={partners || []} canCreate={canCreate} initialType={searchParams.type} />
     </div>
   )
 }
