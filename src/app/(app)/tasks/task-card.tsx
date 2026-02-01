@@ -66,8 +66,7 @@ export default function TaskCard({ task, canManage, currentUserId, allUsers }: T
       if (error) throw error
       router.refresh()
     } catch (error) {
-      console.error('Error updating task status:', error)
-      alert('Failed to update task status')
+      // Error handling
     }
   }
 
@@ -84,8 +83,7 @@ export default function TaskCard({ task, canManage, currentUserId, allUsers }: T
       if (error) throw error
       router.refresh()
     } catch (error) {
-      console.error('Error deleting task:', error)
-      alert('Failed to delete task')
+      // Error handling
     } finally {
       setIsDeleting(false)
     }

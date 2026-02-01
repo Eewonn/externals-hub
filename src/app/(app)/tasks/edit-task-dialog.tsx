@@ -45,7 +45,7 @@ export default function EditTaskDialog({ task, allUsers, currentUserId }: EditTa
     e.preventDefault()
     
     if (!formData.title || !formData.assigned_to || !formData.deadline) {
-      alert('Please fill in all required fields')
+
       return
     }
 
@@ -67,8 +67,7 @@ export default function EditTaskDialog({ task, allUsers, currentUserId }: EditTa
       setOpen(false)
       router.refresh()
     } catch (error) {
-      console.error('Error updating task:', error)
-      alert('Failed to update task')
+      // Error handling
     } finally {
       setIsSubmitting(false)
     }

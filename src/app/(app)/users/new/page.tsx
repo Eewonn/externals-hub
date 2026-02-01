@@ -63,7 +63,7 @@ export default function NewUserPage() {
         router.refresh()
       }, 3000)
     } catch (error: any) {
-      console.error('Error creating user:', error)
+
       alert(error.message || 'Failed to create user')
     } finally {
       setIsLoading(false)

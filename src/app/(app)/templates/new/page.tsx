@@ -48,8 +48,7 @@ export default function NewTemplatePage() {
       router.push('/templates')
       router.refresh()
     } catch (error: any) {
-      console.error('Error creating template:', error)
-      alert(error.message || 'Failed to create template')
+      // Error handling - could add toast notification here
     } finally {
       setIsLoading(false)
     }

@@ -43,7 +43,7 @@ export default function CreateTaskDialog({ users, currentUserId }: CreateTaskDia
     e.preventDefault()
     
     if (!formData.title || !formData.assigned_to || !formData.deadline) {
-      alert('Please fill in all required fields')
+
       return
     }
 
@@ -72,8 +72,7 @@ export default function CreateTaskDialog({ users, currentUserId }: CreateTaskDia
       setOpen(false)
       router.refresh()
     } catch (error) {
-      console.error('Error creating task:', error)
-      alert('Failed to create task')
+      // Error handling
     } finally {
       setIsSubmitting(false)
     }

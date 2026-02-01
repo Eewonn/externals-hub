@@ -72,8 +72,7 @@ export default function TemplateActionsMenu({ template }: TemplateActionsMenuPro
       setIsEditDialogOpen(false)
       router.refresh()
     } catch (error) {
-      console.error('Error updating template:', error)
-      alert('Failed to update template')
+      // Error handling
     } finally {
       setIsLoading(false)
     }
@@ -92,8 +91,7 @@ export default function TemplateActionsMenu({ template }: TemplateActionsMenuPro
       setIsDeleteDialogOpen(false)
       router.refresh()
     } catch (error) {
-      console.error('Error deleting template:', error)
-      alert('Failed to delete template')
+      // Error handling
     } finally {
       setIsLoading(false)
     }

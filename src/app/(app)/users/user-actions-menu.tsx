@@ -65,8 +65,7 @@ export default function UserActionsMenu({ user, currentUserId }: UserActionsMenu
       setIsRoleDialogOpen(false)
       router.refresh()
     } catch (error) {
-      console.error('Error updating role:', error)
-      alert('Failed to update user role')
+      // Error handling
     } finally {
       setIsLoading(false)
     }
@@ -81,17 +80,12 @@ export default function UserActionsMenu({ user, currentUserId }: UserActionsMenu
         .delete()
         .eq('id', user.id)
 
-      if (error) {
-        console.error('Error deleting user:', error)
-        alert(`Failed to delete user: ${error.message}`)
-        return
-      }
+      if (error) return
 
       setIsDeleteDialogOpen(false)
       router.refresh()
     } catch (error: any) {
-      console.error('Error deleting user:', error)
-      alert(`Failed to delete user: ${error.message || 'Unknown error'}`)
+      // Error handling
     } finally {
       setIsLoading(false)
     }
@@ -123,8 +117,7 @@ export default function UserActionsMenu({ user, currentUserId }: UserActionsMenu
       setIsApproveDialogOpen(false)
       router.refresh()
     } catch (error: any) {
-      console.error('Error approving user:', error)
-      alert(error.message || 'Failed to approve user')
+      // Error handling
     } finally {
       setIsLoading(false)
     }
@@ -156,8 +149,7 @@ export default function UserActionsMenu({ user, currentUserId }: UserActionsMenu
       setIsRejectDialogOpen(false)
       router.refresh()
     } catch (error: any) {
-      console.error('Error rejecting user:', error)
-      alert(error.message || 'Failed to reject user')
+      // Error handling
     } finally {
       setIsLoading(false)
     }
