@@ -51,8 +51,6 @@ export type TemplateCategory =
 
 export type ACMMembershipStatus = 'yes' | 'no' | 'not_sure'
 
-export type ApprovalStatus = 'pending' | 'approved' | 'rejected'
-
 export interface EventApplication {
     id: string
     event_id: string
@@ -75,7 +73,6 @@ export interface Database {
                     email: string
                     full_name: string
                     role: UserRole
-                    approval_status: ApprovalStatus
                     created_at: string
                     updated_at: string
                 }
@@ -84,7 +81,6 @@ export interface Database {
                     email: string
                     full_name: string
                     role: UserRole
-                    approval_status?: ApprovalStatus
                     created_at?: string
                     updated_at?: string
                 }
@@ -93,7 +89,6 @@ export interface Database {
                     email?: string
                     full_name?: string
                     role?: UserRole
-                    approval_status?: ApprovalStatus
                     created_at?: string
                     updated_at?: string
                 }

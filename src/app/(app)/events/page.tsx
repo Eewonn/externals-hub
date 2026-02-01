@@ -36,6 +36,10 @@ export default async function EventsPage() {
     `)
     .order('event_date', { ascending: false })
 
+  if (error) {
+    console.error('Error fetching events:', error)
+  }
+
   const canCreate = profile?.role === 'vp_externals' || profile?.role === 'junior_officer'
 
   return (

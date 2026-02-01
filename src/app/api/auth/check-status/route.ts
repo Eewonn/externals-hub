@@ -15,10 +15,10 @@ export async function GET() {
       )
     }
 
-    // Check user approval status
+    // Get user data
     const { data: userData, error: dbError } = await supabase
       .from('users')
-      .select('approval_status, role, full_name')
+      .select('role, full_name')
       .eq('id', user.id)
       .single()
 
@@ -31,7 +31,6 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      approval_status: userData.approval_status,
       role: userData.role,
       full_name: userData.full_name
     })

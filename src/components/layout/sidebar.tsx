@@ -160,7 +160,7 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
       {/* User Account */}
       <div className="p-4 border-t border-gray-200">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild suppressHydrationWarning>
             <Button 
               variant="ghost" 
               className="w-full justify-start text-left font-normal hover:bg-gray-100"

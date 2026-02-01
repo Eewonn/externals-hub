@@ -54,18 +54,14 @@ export async function POST(request: Request) {
     }
 
     if (authData.user) {
-      // Create user profile in public.users table (admin-created users are auto-approved)
+      // Create user profile in public.users table
       const { error: profileError } = await supabaseAdmin
         .from('users')
         .insert({
           id: authData.user.id,
           email,
           full_name,
-          role,
-          approval_status: 'approved', // Admin-created users are auto-approved
-          approved_at: new Date().toISOString(),
-          approved_by: createdBy,
-          created_by: createdBy
+          role
         })
 
       if (profileError) {

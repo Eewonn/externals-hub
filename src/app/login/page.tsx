@@ -13,12 +13,9 @@ import { UserPlus } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -26,7 +23,6 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    setSuccess(null)
     setLoading(true)
 
     try {
@@ -36,97 +32,16 @@ export default function LoginPage() {
       })
 
       if (error) {
-        // Provide better error messages
-        if (error.message.includes('Email not confirmed')) {
-          setError('Email not confirmed. Please check your inbox for a verification email.')
-        } else {
-          setError(error.message)
-        }
+        setError(error.message)
         return
       }
 
       if (data.user) {
-        // Check if user is approved via API route
-        try {
-          const response = await fetch('/api/auth/check-status')
-          
-          if (!response.ok) {
-            setError('Error checking user status')
-            await supabase.auth.signOut()
-            return
-          }
-
-          const userData = await response.json()
-
-          if (userData.approval_status === 'pending') {
-            await supabase.auth.signOut()
-            setError('Your account is pending approval. Please wait for an administrator to approve your registration.')
-            return
-          }
-
-          if (userData.approval_status === 'rejected') {
-            await supabase.auth.signOut()
-            setError('Your registration request has been declined. Please contact an administrator for more information.')
-            return
-          }
-
-          router.push('/dashboard')
-          router.refresh()
-        } catch (err) {
-          setError('Error checking user status')
-          await supabase.auth.signOut()
-          return
-        }
+        router.push('/dashboard')
+        router.refresh()
       }
     } catch (err) {
       setError('An unexpected error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setSuccess(null)
-    setLoading(true)
-
-    try {
-      // Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName
-          },
-          emailRedirectTo: `${window.location.origin}/api/auth/callback`
-        }
-      })
-
-      if (authError) throw authError
-
-      if (authData.user) {
-        // Create user profile with pending status
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email,
-            full_name: fullName,
-            role: 'junior_officer', // Default role for self-registered users
-            approval_status: 'pending' // Requires admin approval
-          })
-
-        if (profileError) throw profileError
-
-        setSuccess('Registration submitted! Your account is pending approval from an administrator. You will be able to sign in once approved.')
-        setIsSignUp(false)
-        setFullName('')
-        setPassword('')
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account')
     } finally {
       setLoading(false)
     }
@@ -140,36 +55,15 @@ export default function LoginPage() {
             Externals Hub
           </CardTitle>
           <CardDescription className="text-center text-base text-gray-600">
-            {isSignUp ? 'Create your account' : 'Sign in to access the Externals Committee management system'}
+            Sign in to access the Externals Committee management system
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
-            )}
-            {success && (
-              <Alert className="border-green-200 bg-green-50">
-                <AlertDescription className="text-green-800">{success}</AlertDescription>
-              </Alert>
-            )}
-            
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Juan Dela Cruz"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  disabled={loading}
-                  className="h-11"
-                />
-              </div>
             )}
             
             <div className="space-y-2">
@@ -205,24 +99,9 @@ export default function LoginPage() {
               className="w-full h-11 text-base font-semibold bg-gray-900 hover:bg-gray-800 text-white"
               disabled={loading}
             >
-              {loading ? (isSignUp ? 'Creating account...' : 'Signing in...') : (isSignUp ? 'Create Account' : 'Sign In')}
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError(null)
-                setSuccess(null)
-              }}
-              className="text-sm text-gray-600 hover:text-gray-900"
-              disabled={loading}
-            >
-              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-            </button>
-          </div>
 
           <div className="mt-6">
             <div className="relative">
