@@ -162,8 +162,7 @@ CREATE TABLE public.users (
 CREATE TABLE public.endorsements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id UUID NOT NULL UNIQUE REFERENCES public.events(id) ON DELETE CASCADE,
-  gdocs_url TEXT NOT NULL,
-  gforms_submission_url TEXT,
+  gdrive_link TEXT NOT NULL,
   status endorsement_status NOT NULL DEFAULT 'drafted',
   reviewed_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   reviewed_at TIMESTAMPTZ,

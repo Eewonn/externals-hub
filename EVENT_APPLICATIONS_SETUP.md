@@ -74,10 +74,10 @@ Example SQL:
 SELECT id, title, status FROM public.events WHERE status = 'upcoming';
 
 -- Create a test endorsement (replace event_id and user_id)
-INSERT INTO public.endorsements (event_id, gdocs_url, status, created_by)
+INSERT INTO public.endorsements (event_id, gdrive_link, status, created_by)
 VALUES (
   'your-event-id-here',
-  'https://docs.google.com/document/d/test',
+  'https://drive.google.com/drive/folders/test',
   'approved',
   'your-user-id-here'
 );
@@ -132,12 +132,12 @@ INSERT INTO public.events (
 -- 2. Create endorsement (use the returned id from above)
 INSERT INTO public.endorsements (
   event_id, 
-  gdocs_url, 
+  gdrive_link, 
   status, 
   created_by
 ) VALUES (
   'event-id-from-above',
-  'https://docs.google.com/document/d/test',
+  'https://drive.google.com/drive/folders/test',
   'approved',
   (SELECT id FROM public.users WHERE role = 'vp_externals' LIMIT 1)
 );

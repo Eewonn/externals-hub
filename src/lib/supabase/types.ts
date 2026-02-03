@@ -141,8 +141,7 @@ export interface Database {
                 Row: {
                     id: string
                     event_id: string
-                    gdocs_url: string
-                    gforms_submission_url: string | null
+                    gdrive_link: string
                     status: EndorsementStatus
                     reviewed_by: string | null
                     reviewed_at: string | null
@@ -156,8 +155,7 @@ export interface Database {
                 Insert: {
                     id?: string
                     event_id: string
-                    gdocs_url: string
-                    gforms_submission_url?: string | null
+                    gdrive_link: string
                     status?: EndorsementStatus
                     reviewed_by?: string | null
                     reviewed_at?: string | null
@@ -171,8 +169,7 @@ export interface Database {
                 Update: {
                     id?: string
                     event_id?: string
-                    gdocs_url?: string
-                    gforms_submission_url?: string | null
+                    gdrive_link?: string
                     status?: EndorsementStatus
                     reviewed_by?: string | null
                     reviewed_at?: string | null

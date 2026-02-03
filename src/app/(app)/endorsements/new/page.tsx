@@ -23,8 +23,7 @@ export default function NewEndorsementPage() {
   
   const [formData, setFormData] = useState({
     event_id: searchParams.get('event_id') || '',
-    gdocs_url: '',
-    gforms_submission_url: '',
+    gdrive_link: '',
     notes: '',
   })
 
@@ -70,9 +69,9 @@ export default function NewEndorsementPage() {
         return
       }
 
-      // Validate Google Docs URL
-      if (!formData.gdocs_url.includes('docs.google.com')) {
-        setError('Please provide a valid Google Docs URL')
+      // Validate Google Drive URL
+      if (!formData.gdrive_link.includes('drive.google.com')) {
+        setError('Please provide a valid Google Drive URL')
         setLoading(false)
         return
       }
@@ -81,8 +80,7 @@ export default function NewEndorsementPage() {
         .from('endorsements')
         .insert({
           event_id: formData.event_id,
-          gdocs_url: formData.gdocs_url,
-          gforms_submission_url: formData.gforms_submission_url || null,
+          gdrive_link: formData.gdrive_link,
           notes: formData.notes || null,
           created_by: user.id,
           status: 'drafted',
@@ -117,7 +115,7 @@ export default function NewEndorsementPage() {
         <CardHeader>
           <CardTitle>Endorsement Details</CardTitle>
           <CardDescription>
-            Provide links to your Google Docs endorsement letter and Google Forms submission
+            Provide link to your Google Drive folder containing endorsement documents
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -155,62 +153,33 @@ export default function NewEndorsementPage() {
               )}
             </div>
 
-            {/* Google Docs URL */}
+            {/* Google Drive Link */}
             <div className="space-y-2">
-              <Label htmlFor="gdocs_url">Google Docs Letter URL *</Label>
+              <Label htmlFor="gdrive_link">Google Drive Link *</Label>
               <div className="flex gap-2">
                 <Input
-                  id="gdocs_url"
+                  id="gdrive_link"
                   type="url"
-                  value={formData.gdocs_url}
-                  onChange={(e) => setFormData({ ...formData, gdocs_url: e.target.value })}
-                  placeholder="https://docs.google.com/document/d/..."
+                  value={formData.gdrive_link}
+                  onChange={(e) => setFormData({ ...formData, gdrive_link: e.target.value })}
+                  placeholder="https://drive.google.com/drive/folders/..."
                   required
                   disabled={loading}
                   className="flex-1"
                 />
-                {formData.gdocs_url && (
+                {formData.gdrive_link && (
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    onClick={() => window.open(formData.gdocs_url, '_blank')}
+                    onClick={() => window.open(formData.gdrive_link, '_blank')}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 )}
               </div>
               <p className="text-sm text-gray-600">
-                Link to your endorsement letter in Google Docs. Make sure sharing is enabled.
-              </p>
-            </div>
-
-            {/* Google Forms Submission URL */}
-            <div className="space-y-2">
-              <Label htmlFor="gforms_submission_url">Google Forms Submission URL (Optional)</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="gforms_submission_url"
-                  type="url"
-                  value={formData.gforms_submission_url}
-                  onChange={(e) => setFormData({ ...formData, gforms_submission_url: e.target.value })}
-                  placeholder="https://docs.google.com/forms/d/..."
-                  disabled={loading}
-                  className="flex-1"
-                />
-                {formData.gforms_submission_url && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => window.open(formData.gforms_submission_url, '_blank')}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              <p className="text-sm text-gray-600">
-                Optional link to Google Forms submission if applicable.
+                Link to your Google Drive folder containing all endorsement documents. Make sure sharing is enabled.
               </p>
             </div>
 
@@ -230,8 +199,8 @@ export default function NewEndorsementPage() {
             {/* Info Alert */}
             <Alert>
               <AlertDescription>
-                <strong>Important:</strong> Make sure your Google Docs link has proper sharing permissions 
-                (at least "Anyone with the link can view") so reviewers can access the endorsement letter.
+                <strong>Important:</strong> Make sure your Google Drive folder has proper sharing permissions 
+                (at least "Anyone with the link can view") so reviewers can access the endorsement documents.
               </AlertDescription>
             </Alert>
 

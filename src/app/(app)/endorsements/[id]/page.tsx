@@ -215,40 +215,21 @@ export default function EndorsementDetailPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-sm font-semibold">Google Docs Letter</Label>
+            <Label className="text-sm font-semibold">Google Drive Link</Label>
             <div className="flex items-center gap-2 mt-2">
               <a
-                href={endorsement.gdocs_url}
+                href={endorsement.gdrive_link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1"
               >
                 <Button variant="outline" className="w-full justify-between">
-                  <span className="truncate">{endorsement.gdocs_url}</span>
+                  <span className="truncate">{endorsement.gdrive_link}</span>
                   <ExternalLink className="h-4 w-4 ml-2 flex-shrink-0" />
                 </Button>
               </a>
             </div>
           </div>
-
-          {endorsement.gforms_submission_url && (
-            <div>
-              <Label className="text-sm font-semibold">Google Forms Submission</Label>
-              <div className="flex items-center gap-2 mt-2">
-                <a
-                  href={endorsement.gforms_submission_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1"
-                >
-                  <Button variant="outline" className="w-full justify-between">
-                    <span className="truncate">{endorsement.gforms_submission_url}</span>
-                    <ExternalLink className="h-4 w-4 ml-2 flex-shrink-0" />
-                  </Button>
-                </a>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
